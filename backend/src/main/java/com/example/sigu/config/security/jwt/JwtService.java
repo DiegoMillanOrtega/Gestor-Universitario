@@ -4,6 +4,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -13,7 +14,8 @@ import java.util.Date;
 @Component
 public class JwtService {
 
-    private final String secretKey = "586E3272357538782F413F4428472B4B6250655368566B597033733676397924";
+    @Value("${application.security.jwt.secret-key}")
+    private String secretKey;
     private final Duration expiration = Duration.ofMinutes(15);
 
     public String generateToken(String username) {
