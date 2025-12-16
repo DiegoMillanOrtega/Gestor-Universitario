@@ -1,18 +1,15 @@
 package com.example.sigu.presentation.advice;
 
 import com.example.sigu.presentation.dto.ErrorResponse;
-import com.example.sigu.service.exception.MateriaNotFoundException;
-import com.example.sigu.service.exception.SemesterOverlapException;
-import com.example.sigu.service.exception.SemestreNotFoundException;
-import com.example.sigu.service.exception.UsuarioNotFoundException;
+import com.example.sigu.service.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.nio.file.AccessDeniedException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -73,6 +70,26 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleAccessDeniedException(AccessDeniedException ex) {
         return new ErrorResponse(
                 HttpStatus.FORBIDDEN.value(),
+                ex.getMessage(),
+                Instant.now()
+        );
+    }
+
+    @ExceptionHandler(ArchivoNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleArchivoNotFoundException(ArchivoNotFoundException ex) {
+        return new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage(),
+                Instant.now()
+        );
+    }
+
+    @ExceptionHandler(TareaNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleTareaNotFoundException(TareaNotFoundException ex) {
+        return new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
                 ex.getMessage(),
                 Instant.now()
         );
