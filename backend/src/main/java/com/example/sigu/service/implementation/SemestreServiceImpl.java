@@ -9,9 +9,9 @@ import com.example.sigu.service.interfaces.ISemestreService;
 import com.example.sigu.util.SecurityUtils;
 import com.example.sigu.util.mapper.SemestreMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +36,7 @@ public class SemestreServiceImpl implements ISemestreService {
     }
 
     @Override
-    public void deleteById(Long id) throws AccessDeniedException {
+    public void deleteById(Long id) {
         Semestre semestreToDelete = semestreRepository.findById(id)
                 .orElseThrow(() -> new SemestreNotFoundException("El semestre con ID: "+ id + " no existe"));
 

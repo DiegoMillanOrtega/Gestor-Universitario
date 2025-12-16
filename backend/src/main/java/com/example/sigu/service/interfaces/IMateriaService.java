@@ -11,6 +11,6 @@ public interface IMateriaService {
     List<Materia> findAll();
     Optional<Materia> findById(Long id);
     Materia save(MateriaRequest materia);
-    void delete(Long id) throws AccessDeniedException;
+    void delete(Long id);
 
 }

@@ -40,16 +40,16 @@ public class MateriaController {
     }
 
     @PostMapping
-    public ResponseEntity<Materia> guardar(@Valid @RequestBody MateriaRequest materia) {
+    public ResponseEntity<MateriaResponse> guardar(@Valid @RequestBody MateriaRequest materia) {
         Materia savedMateria = materiaService.save(materia);
 
         return ResponseEntity
                 .created(URI.create("/api/materias/" + savedMateria.getId()))
-                .body(savedMateria);
+                .body(materiaMapper.toMateriaResponse(savedMateria));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) throws AccessDeniedException {
+    public ResponseEntity<Void> delete(@PathVariable Long id){
         materiaService.delete(id);
         return ResponseEntity.noContent().build();
     }

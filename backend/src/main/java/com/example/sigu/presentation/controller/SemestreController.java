@@ -49,7 +49,7 @@ public class SemestreController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) throws AccessDeniedException {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         semestreService.deleteById(id);
         return ResponseEntity.noContent().build();
     }

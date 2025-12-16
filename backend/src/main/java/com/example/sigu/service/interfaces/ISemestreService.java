@@ -10,6 +10,6 @@ import java.util.Optional;
 public interface ISemestreService {
     List<Semestre> findAll();
     Optional<Semestre> findById(Long id);
-    void  deleteById(Long id) throws AccessDeniedException;
+    void  deleteById(Long id);
     Semestre save(SemestreRequest request);
 }

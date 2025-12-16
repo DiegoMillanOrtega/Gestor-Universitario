@@ -9,9 +9,7 @@ public class UsuarioMapper {
 
     public UsuarioResponse toUsuarioResponse(Usuario usuario) {
         return new UsuarioResponse(
-                usuario.getId(),
-                usuario.getUsername(),
-                usuario.getEmail()
+                usuario.getId()
         );
     }
 }
