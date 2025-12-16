@@ -105,4 +105,14 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(ParcialNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleParcialNotFoundException(ParcialNotFoundException ex) {
+        return new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage(),
+                Instant.now()
+        );
+    }
+
 }
