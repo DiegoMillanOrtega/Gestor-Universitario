@@ -9,6 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface ITareaRepository extends JpaRepository<Tarea, Long> {
-    List<Tarea> findAllByMateria_Semestre_UsuarioId(Long materiaId);
-    Optional<Tarea> findByIdAndMateria_Semestre_UsuarioId(Long id, Long materiaId);
+    List<Tarea> findAllByMateria_Semestre_UsuarioId(Long usuarioId);
+    Optional<Tarea> findByIdAndMateria_Semestre_UsuarioId(Long id, Long usuarioId);
 }
