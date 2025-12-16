@@ -95,4 +95,14 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(NotaNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNotaNotFoundException(NotaNotFoundException ex) {
+        return new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage(),
+                Instant.now()
+        );
+    }
+
 }
