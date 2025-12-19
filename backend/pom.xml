@@ -107,6 +107,19 @@
 			<artifactId>google-oauth-client-jetty</artifactId>
 			<version>1.36.0</version>
 		</dependency>
+
+		<dependency>
+			<groupId>com.google.apis</groupId>
+			<artifactId>google-api-services-tasks</artifactId>
+			<version>v1-rev20251102-2.0.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+			<version>1.6.3</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
