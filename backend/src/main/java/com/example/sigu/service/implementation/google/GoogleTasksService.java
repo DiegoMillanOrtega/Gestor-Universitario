@@ -1,0 +1,118 @@
+package com.example.sigu.service.implementation.google;
+
+
+import com.example.sigu.persistence.entity.Tarea;
+import com.example.sigu.service.exception.GoogleIntegrationException;
+import com.example.sigu.util.mapper.GoogleTaskMapper;
+import com.google.api.client.util.DateTime;
+import com.google.api.services.tasks.model.Task;
+import com.google.api.services.tasks.model.TaskList;
+import com.google.api.services.tasks.model.TaskLists;
+import com.google.api.services.tasks.model.Tasks;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@RequiredArgsConstructor
+public class GoogleTasksService {
+
+    private final GoogleServiceProvider googleProvider;
+    private final GoogleTaskMapper googleTaskMapper;
+
+    //Obtener todas las listas de tareas
+    public List<TaskList> getAllTaskLists() throws IOException {
+        TaskLists result = googleProvider.getTasksService().tasklists().list()
+                .setMaxResults(10)
+                .execute();
+
+
+        return result.getItems() != null ? result.getItems() : new ArrayList<>();
+    }
+
+    //Crea una nueva lista de tareas
+    public TaskList createTaskList(String title) throws IOException {
+        TaskList taskList = new TaskList();
+        taskList.setTitle(title);
+
+        return googleProvider.getTasksService().tasklists().insert(taskList).execute();
+    }
+
+    //Obtiene todas las tareas de una lista específica
+    public List<Task> getTasks(String taskListId) throws IOException {
+        Tasks result = googleProvider.getTasksService().tasks()
+                .list(taskListId)
+                .execute();
+
+        return result.getItems() != null ? result.getItems() : new ArrayList<>();
+    }
+
+    public String getOrCreateTaskList(String taskListName) throws IOException {
+        List<TaskList> allTaskList = getAllTaskLists();
+
+        return Optional.ofNullable(allTaskList)
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(list -> taskListName.equalsIgnoreCase(list.getTitle()))
+                .findFirst()
+                .map(TaskList::getId)
+                .orElseGet(() -> {
+                    try {
+                        return createTaskList(taskListName).getId();
+                    } catch (IOException e) {
+                        throw new GoogleIntegrationException("Error al crear la TaskList en Google", e);
+                    }
+                });
+    }
+
+    //Crea una nueva tarea en una lista específica
+    public Task createTask(String taskListId, Tarea tarea) throws IOException {
+        Task task = new Task();
+        task.setTitle(tarea.getTitulo());
+
+        String notes = String.format("Prioridad %s\n%s", tarea.getPrioridad(), tarea.getDescripcion());
+        task.setNotes(notes);
+
+        ZonedDateTime zdt = tarea.getFechaEntrega().atTime(23, 59).atZone(ZoneId.systemDefault());
+        task.setDue(new DateTime(zdt.toInstant().toEpochMilli()).toStringRfc3339());
+
+        return googleProvider.getTasksService().tasks().insert(taskListId, task).execute();
+    }
+
+
+    //Actualiza una tarea existente
+    public Task updateTask(String taskListId, String taskId, Task task) throws IOException {
+        return googleProvider.getTasksService().tasks().update(taskListId, taskId, task).execute();
+    }
+
+    public void patchTask(Tarea tareaConCambios) throws IOException {
+        Task taskToPatch = googleTaskMapper.toTask(tareaConCambios);
+        googleProvider.getTasksService().tasks().patch(tareaConCambios.getTaskListId(), tareaConCambios.getTaskId(), taskToPatch).execute();
+    }
+
+    //Marca una tarea como completada
+    public Task completeTask(String taskListId, String taskId) throws IOException {
+        Task task = googleProvider.getTasksService().tasks().get(taskListId, taskId).execute();
+        task.setStatus("completed");
+
+        return googleProvider.getTasksService().tasks().update(taskListId, taskId, task).execute();
+    }
+
+    //Elimina una tarea
+    public void deleteTask(String taskListId, String taskId) throws IOException {
+        googleProvider.getTasksService().tasks().delete(taskListId, taskId).execute();
+    }
+
+    //Elimina una lista de tareas
+    public void deleteTaskList(String taskListId) throws IOException {
+        googleProvider.getTasksService().tasklists().delete(taskListId).execute();
+    }
+
+}

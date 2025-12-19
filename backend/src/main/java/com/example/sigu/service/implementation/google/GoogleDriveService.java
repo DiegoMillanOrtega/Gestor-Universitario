@@ -1,14 +1,9 @@
-package com.example.sigu.service.implementation;
+package com.example.sigu.service.implementation.google;
 
 import com.example.sigu.persistence.entity.Archivo;
-import com.example.sigu.persistence.entity.Materia;
 import com.example.sigu.persistence.repository.IArchivoRepository;
 import com.example.sigu.presentation.dto.archivo.ArchivoGoogleDriveRequest;
-import com.example.sigu.presentation.dto.archivo.ArchivoRequest;
-import com.example.sigu.service.exception.MateriaNotFoundException;
-import com.example.sigu.service.interfaces.IMateriaService;
 import com.google.api.client.http.InputStreamContent;
-import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,9 +24,8 @@ import java.util.Map;
 @Slf4j
 public class GoogleDriveService {
 
-    private final Drive driveService;
+    private final GoogleServiceProvider googleProvider;
     private final IArchivoRepository archivoRepository;
-    private final IMateriaService materiaService;
 
     @Value("${google.drive.root-folder-id}")
     private String siguFolderId;
@@ -47,7 +40,6 @@ public class GoogleDriveService {
         log.info("Iniciando subida de archivo: {} para semestre: {}, materia: {}",
                 file.getOriginalFilename(), semestre, materia);
 
-
         String semestreFolderId = obtenerOCrearCarpeta(semestre, siguFolderId);
         String materiaFolderId = obtenerOCrearCarpeta(materia, semestreFolderId);
 
@@ -60,7 +52,7 @@ public class GoogleDriveService {
                 file.getInputStream()
         );
 
-        File uploadedFile = driveService.files().create(fileMetadata, mediaContent)
+        File uploadedFile = googleProvider.getDriveService().files().create(fileMetadata, mediaContent)
                 .setFields("id, name, mimeType, size, webViewLink, createdTime")
                 .execute();
 
@@ -85,7 +77,7 @@ public class GoogleDriveService {
     public void eliminarArchivo(String googleDriveFileId) throws IOException {
         log.info("Eliminando archivo con ID: {}", googleDriveFileId);
 
-        driveService.files().delete(googleDriveFileId).execute();
+        googleProvider.getDriveService().files().delete(googleDriveFileId).execute();
 
         archivoRepository.findByGoogleDriveFileId(googleDriveFileId)
                 .ifPresent(archivoRepository::delete);
@@ -103,7 +95,7 @@ public class GoogleDriveService {
                 newFile.getInputStream()
         );
 
-        File updatedFile = driveService.files().update(archivoEntidad.getGoogleDriveFileId(), fileMetadata, mediaContent)
+        File updatedFile = googleProvider.getDriveService().files().update(archivoEntidad.getGoogleDriveFileId(), fileMetadata, mediaContent)
                 .setFields("id, mimeType, size, webViewLink")
                 .execute();
 
@@ -118,10 +110,10 @@ public class GoogleDriveService {
     public String moverArchivoDeCarpeta(String googleDriveFileId, String semestre, String materia) throws IOException {
         String materiaFolderId =  obtenerOCrearCarpeta(materia, obtenerOCrearCarpeta(semestre, siguFolderId));
 
-        File file = driveService.files().get(googleDriveFileId).setFields("parents").execute();
+        File file = googleProvider.getDriveService().files().get(googleDriveFileId).setFields("parents").execute();
         String previousParents = String.join(",", file.getParents());
 
-        driveService.files().update(googleDriveFileId, null)
+        googleProvider.getDriveService().files().update(googleDriveFileId, null)
                 .setAddParents(materiaFolderId)
                 .setRemoveParents(previousParents)
                 .execute();
@@ -147,7 +139,7 @@ public class GoogleDriveService {
             query += " and '" + parentId + "' in parents";
         }
 
-        FileList result = driveService.files().list()
+        FileList result = googleProvider.getDriveService().files().list()
                 .setQ(query)
                 .setSpaces("drive")
                 .setFields("files(id, name)")
@@ -171,7 +163,7 @@ public class GoogleDriveService {
             fileMetadata.setParents(Collections.singletonList(parentId));
         }
 
-        File folder = driveService.files().create(fileMetadata)
+        File folder = googleProvider.getDriveService().files().create(fileMetadata)
                 .setFields("id, name")
                 .execute();
 
