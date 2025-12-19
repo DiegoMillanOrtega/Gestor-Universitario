@@ -1,6 +1,39 @@
+# --- CONFIGURACIÓN GLOBAL (Común para todos los entornos) ---
 spring:
   application:
     name: "sigu"
+  
+  servlet:
+    multipart:
+      max-file-size: 64MB
+      max-request-size: 70MB
+      enabled: true
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+# Propiedades de la aplicación y Google (Valores por defecto)
+application:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET_KEY}
+
+google:
+  drive:
+    oauth-credentials: classpath:cred.json
+    root-folder-id: 1r7WImFXlZbT1zsfPTszwsdDwnDJytdBT
+  # Estas se sobreescriben en los perfiles de abajo
+  tokens-dir: tokens
+  redirect-uri: http://localhost:8080/oauth2/callback
+
+---
+# --- PERFIL DE DESARROLLO (Local) ---
+spring:
+  config:
+    activate:
+      on-profile: dev
 
   datasource:
     url: jdbc:mysql://localhost:3306/sigu?createDatabaseIfNotExist=true
@@ -8,27 +41,23 @@ spring:
     password: ${DB_PASS}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-
-  servlet:
-    multipart:
-      max-file-size: 64MB
-      max-request-size: 70MB
-      enabled: true
-
-application:
-  security:
-    jwt:
-      secret-key: ${JWT_SECRET_KEY}
-
-# Google Drive Configuration
 google:
-  drive:
-    oauth-credentials: classpath:cred.json
-    tokens-dir: tokens
-    root-folder-id: 1r7WImFXlZbT1zsfPTszwsdDwnDJytdBT
+  tokens-dir: tokens_dev
+  redirect-uri: "http://localhost:8080/oauth2/callback"
 
+---
+# --- PERFIL DE PRODUCCIÓN ---
+spring:
+  config:
+    activate:
+      on-profile: prod
 
+  datasource:
+    # Cambia esto por la IP o Host de tu base de datos en producción
+    url: jdbc:mysql://${DB_HOST:localhost}:3306/sigu
+    username: ${DB_USER}
+    password: ${DB_PASS}
+
+google:
+  tokens-dir: /var/sigu/google-tokens
+  redirect-uri: "https://tu-dominio-real.com/oauth2/callback"
