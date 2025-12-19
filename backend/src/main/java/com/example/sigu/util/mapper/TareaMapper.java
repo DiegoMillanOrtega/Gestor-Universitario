@@ -5,11 +5,13 @@ import com.example.sigu.persistence.entity.Materia;
 import com.example.sigu.persistence.entity.Tarea;
 import com.example.sigu.presentation.dto.tarea.TareaRequest;
 import com.example.sigu.presentation.dto.tarea.TareaResponse;
+import com.example.sigu.presentation.dto.tarea.TareaPatchRequest;
 import com.example.sigu.service.exception.ArchivoNotFoundException;
 import com.example.sigu.service.exception.MateriaNotFoundException;
 import com.example.sigu.service.interfaces.IArchivoService;
 import com.example.sigu.service.interfaces.IMateriaService;
 import lombok.RequiredArgsConstructor;
+import org.mapstruct.MappingTarget;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -40,16 +42,34 @@ public class TareaMapper {
                 .build();
     }
 
+    public void toTarea(
+            TareaPatchRequest request,
+            @MappingTarget Tarea tarea,
+            Materia materia,
+            Archivo archivo
+    ) {
+        if (request.titulo() != null) tarea.setTitulo(request.titulo());
+        if (request.descripcion() != null) tarea.setDescripcion(request.descripcion());
+        if (request.prioridad() != null) tarea.setPrioridad(request.prioridad());
+        if (request.estado() != null) tarea.setEstado(request.estado());
+        if (request.fechaEntrega() != null) tarea.setFechaEntrega(request.fechaEntrega());
+
+        if (materia != null) tarea.setMateria(materia);
+        if (archivo != null) tarea.setArchivo(archivo);
+    }
+
     public TareaResponse toTareaResponse(Tarea tarea) {
-        return new TareaResponse(
-                tarea.getId(),
-                tarea.getTitulo(),
-                tarea.getDescripcion(),
-                tarea.getFechaEntrega(),
-                tarea.getPrioridad(),
-                materiaMapper.toMateriaResponse(tarea.getMateria()),
-                archivoMapper.toArchivoResponse(tarea.getArchivo()),
-                tarea.getEstado()
-        );
+        return TareaResponse.builder()
+                .id(tarea.getId())
+                .titulo(tarea.getTitulo())
+                .descripcion(tarea.getDescripcion())
+                .taskId(tarea.getTaskId())
+                .taskListId(tarea.getTaskListId())
+                .fechaEntrega(tarea.getFechaEntrega())
+                .prioridad(tarea.getPrioridad())
+                .materia(materiaMapper.toMateriaResponse(tarea.getMateria()))
+                .archivo(archivoMapper.toArchivoResponse(tarea.getArchivo()))
+                .estado(tarea.getEstado())
+                .build();
     }
 }

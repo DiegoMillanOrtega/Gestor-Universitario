@@ -1,6 +1,7 @@
 package com.example.sigu.presentation.controller;
 
 import com.example.sigu.persistence.entity.Tarea;
+import com.example.sigu.presentation.dto.tarea.TareaPatchRequest;
 import com.example.sigu.presentation.dto.tarea.TareaRequest;
 import com.example.sigu.presentation.dto.tarea.TareaResponse;
 import com.example.sigu.service.interfaces.ITareaService;
@@ -37,12 +38,18 @@ public class TareaController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+
     @PostMapping
     public ResponseEntity<TareaResponse> save(@Valid @RequestBody TareaRequest request){
         Tarea tareaSaved = service.save(request);
         return ResponseEntity
                 .created(URI.create("/api/tareas/"+ tareaSaved.getId()))
                 .body(mapper.toTareaResponse(tareaSaved));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<TareaResponse> patch(@PathVariable Long id, @Valid @RequestBody TareaPatchRequest request) {
+        return ResponseEntity.ok(mapper.toTareaResponse(service.patch(id, request)));
     }
 
     @DeleteMapping("/{id}")

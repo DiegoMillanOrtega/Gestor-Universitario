@@ -4,16 +4,17 @@ import com.example.sigu.persistence.enums.Estado;
 import com.example.sigu.persistence.enums.Prioridad;
 import com.example.sigu.presentation.dto.archivo.ArchivoResponse;
 import com.example.sigu.presentation.dto.materia.MateriaResponse;
-import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 
 import java.time.LocalDate;
 
+@Builder
 public record TareaResponse(
         Long id,
         String titulo,
         String descripcion,
+        String taskId,
+        String taskListId,
         LocalDate fechaEntrega,
         Prioridad prioridad,
         MateriaResponse materia,

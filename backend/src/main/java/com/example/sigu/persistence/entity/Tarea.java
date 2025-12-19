@@ -24,6 +24,12 @@ public class Tarea {
     private String titulo;
     private String descripcion;
 
+    @Column(nullable = false, length = 100)
+    private String taskId;
+
+    @Column(nullable = false, length = 100)
+    private String taskListId;
+
     @Column(nullable = false)
     private LocalDate fechaEntrega;
 
