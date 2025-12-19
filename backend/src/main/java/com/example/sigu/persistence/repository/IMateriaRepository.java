@@ -9,6 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface IMateriaRepository extends JpaRepository<Materia,Long> {
-    List<Materia> findAllBySemestre_UsuarioId(Long id);
+    List<Materia> findAllBySemestre_UsuarioId(Long usuarioId);;
+    List<Materia> findAllBySemestreIdAndSemestre_UsuarioId(Long semestreId, Long usuarioId);
     Optional<Materia> findByIdAndSemestre_UsuarioId(Long materiaId, Long usuarioId);
 }

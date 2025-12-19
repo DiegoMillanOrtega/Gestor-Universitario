@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public interface IMateriaService {
     List<Materia> findAll();
+    List<Materia> buscarTodoPorSemestreId(Long semestreId);
     Optional<Materia> findById(Long id);
     Materia save(MateriaRequest materia);
     void delete(Long id);
