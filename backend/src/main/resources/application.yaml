@@ -13,7 +13,22 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  servlet:
+    multipart:
+      max-file-size: 64MB
+      max-request-size: 70MB
+      enabled: true
+
 application:
   security:
     jwt:
       secret-key: ${JWT_SECRET_KEY}
+
+# Google Drive Configuration
+google:
+  drive:
+    oauth-credentials: classpath:cred.json
+    tokens-dir: tokens
+    root-folder-id: 1r7WImFXlZbT1zsfPTszwsdDwnDJytdBT
+
+

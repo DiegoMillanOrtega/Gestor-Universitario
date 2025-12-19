@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Google Cloud Credentials ###
+cred.json
+tokens/

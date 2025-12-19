@@ -2,10 +2,12 @@ package com.example.sigu.util.mapper;
 
 import com.example.sigu.persistence.entity.Archivo;
 import com.example.sigu.persistence.entity.Materia;
+import com.example.sigu.presentation.dto.archivo.ArchivoGoogleDriveRequest;
 import com.example.sigu.presentation.dto.archivo.ArchivoRequest;
 import com.example.sigu.presentation.dto.archivo.ArchivoResponse;
 import com.example.sigu.service.exception.MateriaNotFoundException;
 import com.example.sigu.service.interfaces.IMateriaService;
+import com.google.api.services.drive.model.File;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,23 +23,41 @@ public class ArchivoMapper {
                 .orElseThrow(() -> new MateriaNotFoundException("La materia con ID: " + archivoRequest.materiaId() +" no existe"));
 
         return Archivo.builder()
-                .id(archivoRequest.id())
                 .nombre(archivoRequest.nombre())
-                .tipo(archivoRequest.tipo())
-                .url(archivoRequest.url())
                 .descripcion(archivoRequest.descripcion())
                 .materia(materia)
                 .build();
     }
 
+
     public ArchivoResponse toArchivoResponse(Archivo archivo) {
         return new ArchivoResponse(
                 archivo.getId(),
                 archivo.getNombre(),
-                archivo.getTipo(),
-                archivo.getUrl(),
+                archivo.getMimeType(),
+                archivo.getTamano(),
+                archivo.getGoogleDriveFileId(),
+                archivo.getMateriaFolderId(),
+                archivo.getSemestreFolderId(),
+                archivo.getGoogleDriveWebViewLink(),
                 archivo.getDescripcion(),
-                materiaMapper.toMateriaResponse(archivo.getMateria())
+                archivo.getFechaModificacion(),
+                materiaMapper.toMateriaResponse(archivo.getMateria()),
+                null
         );
     }
+
+    public ArchivoGoogleDriveRequest toArchivoGoogleDriveRequest(ArchivoRequest request) {
+        Materia materia = materiaService.findById(request.materiaId())
+                .orElseThrow(() -> new MateriaNotFoundException("La materia con ID: " + request.materiaId() +" no existe"));
+
+        return ArchivoGoogleDriveRequest.builder()
+                .nombre(request.nombre())
+                .descripcion(request.descripcion())
+                .materia(materia)
+                .build();
+    }
+
+
+
 }

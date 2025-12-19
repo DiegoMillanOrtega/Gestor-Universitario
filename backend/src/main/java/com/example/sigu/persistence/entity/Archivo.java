@@ -28,15 +28,28 @@ public class Archivo {
     @Column(nullable = false)
     private String nombre;
 
-    @Enumerated(EnumType.STRING)
-    @Column(length = 10, name = "tipo_archivo",  nullable = false)
-    private TipoArchivo tipo;
+    @Column(nullable = false)
+    private String mimeType;
 
-    @Column(nullable = false, length = 200)
-    private String url;
+    @Column(nullable = false)
+    private Long tamano;
+
+    @Column(nullable = false, unique = true)
+    private String googleDriveFileId;
+
+    @Column(nullable = false, length = 500)
+    private String googleDriveWebViewLink;
+
+    @Column(columnDefinition = "TEXT")
     private String descripcion;
 
-    @ManyToOne
+    @Column(nullable = false)
+    private String semestreFolderId;
+
+    @Column(nullable = false)
+    private String materiaFolderId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "materiaId", foreignKey = @ForeignKey(name = "fk_archivo_materia"),  nullable = false)
     private Materia materia;
 

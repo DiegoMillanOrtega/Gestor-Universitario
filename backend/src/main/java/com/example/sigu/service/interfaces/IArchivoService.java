@@ -2,14 +2,17 @@ package com.example.sigu.service.interfaces;
 
 import com.example.sigu.persistence.entity.Archivo;
 import com.example.sigu.presentation.dto.archivo.ArchivoRequest;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.AccessDeniedException;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 public interface IArchivoService {
-    Archivo create(ArchivoRequest archivoRequest);
+    Archivo guardarArchivo(MultipartFile file, ArchivoRequest request) throws IOException;
     Optional<Archivo> findById(Long id);
     List<Archivo> findAll();
-    void  delete(Long id);
+    void eliminarArchivo(Long id) throws IOException;
+
+    Archivo actualizarArchivo(Long id, ArchivoRequest request, MultipartFile file) throws IOException;
 }

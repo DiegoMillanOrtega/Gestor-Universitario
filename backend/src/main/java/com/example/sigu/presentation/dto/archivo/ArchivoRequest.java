@@ -5,18 +5,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 
+@Builder
 public record ArchivoRequest(
-    Long id,
 
     @NotBlank(message = "El nombre es obligatorio")
     String nombre,
-
-    @NotNull(message = "El tipo de archivo es obligatorio")
-    TipoArchivo tipo,
-
-    @NotBlank(message = "La url es obligatoria")
-    String url,
 
     @Size(max = 1000, message = "La descripción no puede exceder los 1000 caracteres.")
     String descripcion,

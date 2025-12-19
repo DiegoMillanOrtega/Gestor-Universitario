@@ -7,11 +7,13 @@ import com.example.sigu.service.interfaces.IArchivoService;
 import com.example.sigu.util.mapper.ArchivoMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.net.URI;
-import java.nio.file.AccessDeniedException;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -38,18 +40,33 @@ public class ArchivoController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping
-    public ResponseEntity<ArchivoResponse> create(@Valid @RequestBody ArchivoRequest request) {
-        Archivo archivoCreated = archivoService.create(request);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ArchivoResponse> subirArchivo(
+            @Valid @ModelAttribute ArchivoRequest request,
+            @RequestParam("file") MultipartFile file
+    ) throws IOException {
+        Archivo archivoGuardado = archivoService.guardarArchivo(file, request);
 
         return ResponseEntity
-                .created(URI.create("/api/archivos/" + archivoCreated.getId()))
-                .body(archivoMapper.toArchivoResponse(archivoCreated));
+                .status(HttpStatus.CREATED)
+                .body(archivoMapper.toArchivoResponse(archivoGuardado));
     }
 
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id){
-        archivoService.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) throws IOException {
+        archivoService.eliminarArchivo(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ArchivoResponse> actualizarArchivo(
+            @PathVariable Long id,
+            @Valid @ModelAttribute ArchivoRequest request,
+            @RequestParam(value = "file", required = false) MultipartFile file
+    ) throws IOException {
+        Archivo archivoActualizado = archivoService.actualizarArchivo(id, request, file);
+
+        return ResponseEntity.ok(archivoMapper.toArchivoResponse(archivoActualizado));
     }
 }
