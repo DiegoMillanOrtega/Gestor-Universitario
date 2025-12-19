@@ -35,3 +35,5 @@ build/
 ### Google Cloud Credentials ###
 cred.json
 tokens/
+tokens_dev/
+/var/sigu/google-tokens
