@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,16 +20,36 @@ public class Nota {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(precision = 2, scale = 1)
-    private BigDecimal p1;
-    @Column(precision = 2, scale = 1)
-    private BigDecimal p2;
-    @Column(precision = 2, scale = 1)
-    private BigDecimal p3;
-    @Column(precision = 2, scale = 1)
-    private BigDecimal ex;
+    @Builder.Default
+    @Column(precision = 2, scale = 1, nullable = false)
+    private BigDecimal p1 = BigDecimal.ZERO;
+
+    @Builder.Default
+    @Column(precision = 2, scale = 1, nullable = false)
+    private BigDecimal p2 = BigDecimal.ZERO;
+
+    @Builder.Default
+    @Column(precision = 2, scale = 1, nullable = false)
+    private BigDecimal p3  = BigDecimal.ZERO;
+
+    @Builder.Default
+    @Column(precision = 2, scale = 1, nullable = false)
+    private BigDecimal ex = BigDecimal.ZERO;
 
     @ManyToOne
     @JoinColumn(name = "materia_id", foreignKey = @ForeignKey(name = "fk_nota_materia"), nullable = false)
     private Materia materia;
+
+    @Transient
+    public BigDecimal getPromedio() {
+        //Promedio de parciales (p1+p2+p3) / 3
+        BigDecimal sumaParciales = p1.add(p2).add(p3);
+        BigDecimal promedioParciales = sumaParciales.divide(BigDecimal.valueOf(3), 2, RoundingMode.HALF_UP);
+
+        //Aplicar porcentajes: (Parciales * 70%) + (Examen * 30%)
+        BigDecimal parteParciales = promedioParciales.multiply(BigDecimal.valueOf(0.7));
+        BigDecimal parteExamen = ex.multiply(BigDecimal.valueOf(0.3));
+
+        return parteParciales.add(parteExamen).setScale(2, RoundingMode.HALF_UP);
+    }
 }
