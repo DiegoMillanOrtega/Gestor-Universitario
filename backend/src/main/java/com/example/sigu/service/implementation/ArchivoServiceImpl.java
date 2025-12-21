@@ -3,12 +3,11 @@ package com.example.sigu.service.implementation;
 import com.example.sigu.persistence.entity.Archivo;
 import com.example.sigu.persistence.entity.Materia;
 import com.example.sigu.persistence.repository.IArchivoRepository;
-import com.example.sigu.persistence.repository.IMateriaRepository;
 import com.example.sigu.presentation.dto.archivo.ArchivoRequest;
 import com.example.sigu.service.exception.ArchivoNotFoundException;
-import com.example.sigu.service.exception.MateriaNotFoundException;
 import com.example.sigu.service.implementation.google.GoogleDriveService;
 import com.example.sigu.service.interfaces.IArchivoService;
+import com.example.sigu.service.interfaces.IMateriaService;
 import com.example.sigu.util.SecurityUtils;
 import com.example.sigu.util.mapper.ArchivoMapper;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,20 +26,25 @@ import java.util.Optional;
 public class ArchivoServiceImpl implements IArchivoService {
 
     private final IArchivoRepository repository;
-    private final IMateriaRepository materiaRepository;
+    private final IMateriaService materiaService;
     private final ArchivoMapper archivoMapper;
     private final SecurityUtils securityUtils;
     private final GoogleDriveService googleDriveService;
 
     @Override
+    @Transactional
     public Archivo guardarArchivo(MultipartFile file, ArchivoRequest request) throws IOException {
-        Archivo uploadedFile = googleDriveService.subirArchivo(file, archivoMapper.toArchivoGoogleDriveRequest(request));
-        return repository.save(uploadedFile);
+        Archivo archivo = archivoMapper.toEntity(request);
+        archivo.setMateria(materiaService.findById(request.materiaId()));
+
+        googleDriveService.subirArchivo(file, archivo);
+        return repository.save(archivo);
     }
 
     @Override
-    public Optional<Archivo> findById(Long id) {
-        return repository.findByIdAndMateria_Semestre_UsuarioId(id, securityUtils.getCurrentUserId());
+    public Archivo findById(Long id) {
+        return repository.findByIdAndMateria_Semestre_UsuarioId(id, securityUtils.getCurrentUserId())
+                .orElseThrow(() -> new ArchivoNotFoundException("No existe archivo asociado al ID: " + id));
     }
 
     @Override
@@ -51,8 +54,7 @@ public class ArchivoServiceImpl implements IArchivoService {
 
     @Override
     public void eliminarArchivo(Long id) throws IOException {
-        Archivo archivoAEliminar = findById(id)
-                .orElseThrow(() -> new ArchivoNotFoundException("El archivo con el ID: "+ id+" no existe"));
+        Archivo archivoAEliminar = findById(id);
 
         if (!archivoAEliminar.getMateria().getSemestre().getUsuario().getId().equals(securityUtils.getCurrentUserId())) {
             throw new AccessDeniedException("Acceso Denegado: No tienes permiso para eliminar la materia con ID: " + id);
@@ -69,8 +71,7 @@ public class ArchivoServiceImpl implements IArchivoService {
     public Archivo actualizarArchivo(Long id, ArchivoRequest request, MultipartFile file) throws IOException {
         log.info("Iniciando actualización del archivo con ID: {}", id);
 
-        Archivo archivo = findById(id)
-                .orElseThrow(() -> new ArchivoNotFoundException("El archivo con el ID: "+ id+" no existe"));
+        Archivo archivo = findById(id);
 
         archivo.setNombre(request.nombre());
         archivo.setDescripcion(request.descripcion());
@@ -79,8 +80,7 @@ public class ArchivoServiceImpl implements IArchivoService {
         boolean materiaCambio = !archivo.getMateria().getId().equals(request.materiaId());
 
         if (materiaCambio) {
-            Materia materiaNueva = materiaRepository.findById(request.materiaId())
-                    .orElseThrow(() -> new MateriaNotFoundException("Materia no encontrada"));
+            Materia materiaNueva = materiaService.findById(request.materiaId());
 
             log.info("Moviendo archivo de {} a {}", archivo.getMateria().getNombre(), materiaNueva.getNombre());
 

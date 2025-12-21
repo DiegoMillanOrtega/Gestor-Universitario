@@ -3,8 +3,8 @@ package com.example.sigu.service.implementation;
 import com.example.sigu.persistence.entity.Parcial;
 import com.example.sigu.persistence.repository.IParcialRepository;
 import com.example.sigu.presentation.dto.parcial.ParcialRequest;
-import com.example.sigu.presentation.dto.parcial.ParcialResponse;
 import com.example.sigu.service.exception.ParcialNotFoundException;
+import com.example.sigu.service.interfaces.IMateriaService;
 import com.example.sigu.service.interfaces.IParcialService;
 import com.example.sigu.util.SecurityUtils;
 import com.example.sigu.util.mapper.ParcialMapper;
@@ -12,13 +12,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ParcialServiceImpl implements IParcialService {
 
     private final IParcialRepository repository;
+    private final IMateriaService materiaService;
     private final ParcialMapper mapper;
     private final SecurityUtils securityUtils;
 
@@ -28,21 +28,20 @@ public class ParcialServiceImpl implements IParcialService {
     }
 
     @Override
-    public Optional<Parcial> findById(Long id) {
-        return repository.findByIdAndMateria_Semestre_UsuarioId(id, securityUtils.getCurrentUserId());
+    public Parcial findById(Long id) {
+        return repository.findByIdAndMateria_Semestre_UsuarioId(id, securityUtils.getCurrentUserId())
+                .orElseThrow(() -> new ParcialNotFoundException("No existe parcial asociado al ID: " + id));
     }
 
     @Override
     public Parcial save(ParcialRequest request) {
-        return repository.save(mapper.toParcial(request));
-
+        Parcial parcial = mapper.toEntity(request);
+        parcial.setMateria(materiaService.findById(request.materiaId()));
+        return repository.save(parcial);
     }
 
     @Override
     public void delete(Long id) {
-        Parcial parcialToDelete = findById(id)
-                .orElseThrow(() -> new ParcialNotFoundException("El parcial con ID: " + id + " no fue encontrado"));
-
-        repository.delete(parcialToDelete);
+        repository.delete(findById(id));
     }
 }

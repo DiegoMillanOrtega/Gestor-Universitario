@@ -5,15 +5,18 @@ import com.example.sigu.persistence.repository.ISemestreRepository;
 import com.example.sigu.presentation.dto.semestre.SemestreRequest;
 import com.example.sigu.service.exception.SemesterOverlapException;
 import com.example.sigu.service.exception.SemestreNotFoundException;
+import com.example.sigu.service.exception.UsuarioNotFoundException;
 import com.example.sigu.service.interfaces.ISemestreService;
+import com.example.sigu.service.interfaces.IUsuarioService;
 import com.example.sigu.util.SecurityUtils;
 import com.example.sigu.util.mapper.SemestreMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +24,7 @@ public class SemestreServiceImpl implements ISemestreService {
 
 
     private final ISemestreRepository semestreRepository;
+    private final IUsuarioService usuarioService;
     private final SemestreMapper semestreMapper;
     private final SecurityUtils securityUtils;
 
@@ -31,14 +35,15 @@ public class SemestreServiceImpl implements ISemestreService {
     }
 
     @Override
-    public Optional<Semestre> findById(Long id) {
-        return semestreRepository.findByIdAndUsuarioId(id,securityUtils.getCurrentUserId());
+    public Semestre findById(Long id) {
+        return semestreRepository.findByIdAndUsuarioId(id,securityUtils.getCurrentUserId())
+                .orElseThrow(() -> new SemestreNotFoundException(id));
     }
 
     @Override
     public void deleteById(Long id) {
         Semestre semestreToDelete = semestreRepository.findById(id)
-                .orElseThrow(() -> new SemestreNotFoundException("El semestre con ID: "+ id + " no existe"));
+                .orElseThrow(() -> new SemestreNotFoundException(id));
 
         if (!semestreToDelete.getUsuario().getId().equals(securityUtils.getCurrentUserId())) {
             throw new AccessDeniedException("Acceso denegado. No tienes permiso para eliminar este semestre.");
@@ -49,11 +54,21 @@ public class SemestreServiceImpl implements ISemestreService {
     @Override
     public Semestre save(SemestreRequest request) {
         if (semestreRepository.existsOverlap(request.fechaInicio(), request.fechaFin(), request.id(), request.usuarioId())) {
-            throw new SemesterOverlapException(
-                    "El rango de fechas (" + request.fechaInicio() + " a " + request.fechaFin() +
-                            ") se solapa con un semestre existente. No se permiten rangos duplicados."
-            );
+            throw new SemesterOverlapException(request.fechaInicio(), request.fechaFin());
         }
-        return semestreRepository.save(semestreMapper.toSemestre(request));
+
+        Semestre semestre = semestreMapper.toEntity(request);
+        semestre.setUsuario(usuarioService.findById(request.usuarioId()));
+
+        return semestreRepository.save(semestre);
+    }
+
+    @Override
+    public long obtenerSemanasRestantes(Long semestreId) {
+        Semestre semestre = findById(semestreId);
+        LocalDate hoy = LocalDate.now();
+
+        if (hoy.isAfter(semestre.getFechaFin())) return 0;
+        return ChronoUnit.WEEKS.between(hoy, semestre.getFechaFin());
     }
 }

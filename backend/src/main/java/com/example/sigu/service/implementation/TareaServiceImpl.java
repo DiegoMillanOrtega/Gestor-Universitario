@@ -1,7 +1,5 @@
 package com.example.sigu.service.implementation;
 
-import com.example.sigu.persistence.entity.Archivo;
-import com.example.sigu.persistence.entity.Materia;
 import com.example.sigu.persistence.entity.Tarea;
 import com.example.sigu.persistence.enums.Estado;
 import com.example.sigu.persistence.repository.ITareaRepository;
@@ -9,7 +7,6 @@ import com.example.sigu.presentation.dto.tarea.TareaRequest;
 import com.example.sigu.presentation.dto.tarea.TareaPatchRequest;
 import com.example.sigu.service.exception.ArchivoNotFoundException;
 import com.example.sigu.service.exception.GoogleIntegrationException;
-import com.example.sigu.service.exception.MateriaNotFoundException;
 import com.example.sigu.service.exception.TareaNotFoundException;
 import com.example.sigu.service.implementation.google.GoogleTasksService;
 import com.example.sigu.service.interfaces.IArchivoService;
@@ -26,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +43,12 @@ public class TareaServiceImpl implements ITareaService {
     @Transactional
     public Tarea save(TareaRequest request)  {
         try {
-            Tarea tareaAGuardar = mapper.toTarea(request);
+            Tarea tareaAGuardar = mapper.toEntity(request);
+
+            tareaAGuardar.setMateria(materiaService.findById(request.materiaId()));
+
+            if (request.archivoId() != null) tareaAGuardar.setArchivo(archivoService.findById(request.archivoId()));
+
             String semestreNombre = tareaAGuardar.getMateria().getSemestre().getNombre();
 
             String taskListId = googleTasksService.getOrCreateTaskList(semestreNombre);
@@ -69,21 +70,15 @@ public class TareaServiceImpl implements ITareaService {
     @Override
     @Transactional
     public Tarea patch(Long tareaId, TareaPatchRequest request) {
-        Tarea tarea = findById(tareaId).orElseThrow(() -> new TareaNotFoundException("Tarea no encontrada con ID: " + tareaId));
+        Tarea tarea = findById(tareaId);
 
-        Materia materia = null;
         if (request.materiaId() != null) {
-            materia = materiaService.findById(request.materiaId())
-                    .orElseThrow(() -> new MateriaNotFoundException("Materia no encontrada con ID: " + request.materiaId()));
+            tarea.setMateria(materiaService.findById(request.materiaId()));
         }
 
-        Archivo archivo = null;
-        if (request.archivoId() != null) {
-            archivo = archivoService.findById(request.archivoId())
-                    .orElseThrow(() -> new ArchivoNotFoundException("Archivo no encontrado con ID: " + request.archivoId()));
-        }
+        if (request.archivoId() != null) tarea.setArchivo(archivoService.findById(request.archivoId()));
 
-        mapper.toTarea(request, tarea, materia, archivo);
+        mapper.updateEntityFromPatch(request, tarea);
 
         try {
             googleTasksService.patchTask(tarea);
@@ -96,8 +91,9 @@ public class TareaServiceImpl implements ITareaService {
     }
 
     @Override
-    public Optional<Tarea> findById(Long id) {
-        return repository.findByIdAndMateria_Semestre_UsuarioId(id, securityUtils.getCurrentUserId());
+    public Tarea findById(Long id) {
+        return repository.findByIdAndMateria_Semestre_UsuarioId(id, securityUtils.getCurrentUserId())
+                .orElseThrow(() -> new TareaNotFoundException("No existe tarea asociada al ID: " + id));
     }
 
     @Override
@@ -107,8 +103,7 @@ public class TareaServiceImpl implements ITareaService {
 
     @Override
     public void deleteById(Long id) {
-        Tarea tareaToDelete = findById(id)
-                .orElseThrow(() -> new TareaNotFoundException("Tarea con ID: "+ id+ " no encontrada"));
+        Tarea tareaToDelete = findById(id);
 
         if (!tareaToDelete.getMateria().getSemestre().getUsuario().getId().equals(securityUtils.getCurrentUserId())) {
             throw new AccessDeniedException("\"Acceso Denegado: No tienes permiso para eliminar la tarea con ID: \" + id");

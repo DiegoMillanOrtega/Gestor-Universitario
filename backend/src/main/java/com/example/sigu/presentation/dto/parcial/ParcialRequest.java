@@ -9,8 +9,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public record ParcialRequest(
-        Long id,
-
         @NotNull(message = "El tipo de evaluacion es obligatorio")
         TipoEvaluacion tipo,
 

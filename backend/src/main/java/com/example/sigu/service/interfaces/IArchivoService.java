@@ -6,11 +6,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 public interface IArchivoService {
     Archivo guardarArchivo(MultipartFile file, ArchivoRequest request) throws IOException;
-    Optional<Archivo> findById(Long id);
+    Archivo findById(Long id);
     List<Archivo> findAll();
     void eliminarArchivo(Long id) throws IOException;
 

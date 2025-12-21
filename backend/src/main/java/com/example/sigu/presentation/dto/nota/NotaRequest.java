@@ -7,8 +7,6 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 public record NotaRequest(
-        Long id,
-
         @DecimalMin(value = "0.0", inclusive = true, message = "La calificación mínima es 0.0.")
         @DecimalMax(value = "5.0", inclusive = true, message = "La calificación máxima es 5.0.")
         BigDecimal p1,

@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record MateriaRequest(
-        Long id,
 
         @NotBlank(message = "El nombre no puede estar vacío")
         String nombre,

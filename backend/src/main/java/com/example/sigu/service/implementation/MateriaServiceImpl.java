@@ -1,11 +1,13 @@
 package com.example.sigu.service.implementation;
 
 import com.example.sigu.persistence.entity.Materia;
+import com.example.sigu.persistence.entity.Semestre;
 import com.example.sigu.persistence.repository.IMateriaRepository;
 import com.example.sigu.presentation.dto.materia.MateriaRequest;
 import com.example.sigu.service.exception.MateriaNotFoundException;
 import com.example.sigu.service.exception.SemestreNotFoundException;
 import com.example.sigu.service.interfaces.IMateriaService;
+import com.example.sigu.service.interfaces.ISemestreService;
 import com.example.sigu.util.SecurityUtils;
 import com.example.sigu.util.mapper.MateriaMapper;
 import lombok.RequiredArgsConstructor;
@@ -13,14 +15,13 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class MateriaServiceImpl implements IMateriaService {
 
-
     private final IMateriaRepository materiaRepository;
+    private final ISemestreService semestreService;
     private final MateriaMapper materiaMapper;
     private final SecurityUtils securityUtils;
 
@@ -35,13 +36,20 @@ public class MateriaServiceImpl implements IMateriaService {
     }
 
     @Override
-    public Optional<Materia> findById(Long id) {
-        return materiaRepository.findByIdAndSemestre_UsuarioId(id, securityUtils.getCurrentUserId());
+    public Materia findById(Long id) {
+        return materiaRepository.findByIdAndSemestre_UsuarioId(id, securityUtils.getCurrentUserId())
+                .orElseThrow(() -> new MateriaNotFoundException(
+                        "Lo sentimos, no encontramos ninguna materia registrada con el ID "+id+". Por favor verifica el número e inténtalo de nuevo."));
     }
 
     @Override
     public Materia save(MateriaRequest materiaRequest) {
-        return materiaRepository.save(materiaMapper.toMateria(materiaRequest));
+        Semestre semestre = semestreService.findById(materiaRequest.semestreId());
+
+        Materia materia = materiaMapper.toEntity(materiaRequest);
+        materia.setSemestre(semestre);
+
+        return materiaRepository.save(materia);
     }
 
     @Override

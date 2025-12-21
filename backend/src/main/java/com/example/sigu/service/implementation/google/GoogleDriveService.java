@@ -3,6 +3,7 @@ package com.example.sigu.service.implementation.google;
 import com.example.sigu.persistence.entity.Archivo;
 import com.example.sigu.persistence.repository.IArchivoRepository;
 import com.example.sigu.presentation.dto.archivo.ArchivoGoogleDriveRequest;
+import com.example.sigu.util.mapper.ArchivoMapper;
 import com.google.api.client.http.InputStreamContent;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
@@ -25,6 +26,7 @@ import java.util.Map;
 public class GoogleDriveService {
 
     private final GoogleServiceProvider googleProvider;
+    private final ArchivoMapper archivoMapper;
     private final IArchivoRepository archivoRepository;
 
     @Value("${google.drive.root-folder-id}")
@@ -33,9 +35,9 @@ public class GoogleDriveService {
     private final Map<String, String> folderCache = new HashMap<>();
 
     @Transactional
-    public Archivo subirArchivo(MultipartFile file, ArchivoGoogleDriveRequest request) throws IOException {
-        String semestre = request.materia().getSemestre().getNombre();
-        String materia = request.materia().getNombre();
+    public void subirArchivo(MultipartFile file, Archivo archivo) throws IOException {
+        String materia = archivo.getMateria().getNombre();
+        String semestre = archivo.getMateria().getSemestre().getNombre();
 
         log.info("Iniciando subida de archivo: {} para semestre: {}, materia: {}",
                 file.getOriginalFilename(), semestre, materia);
@@ -58,19 +60,9 @@ public class GoogleDriveService {
 
         log.info("Archivo subido exitosamente con ID: {}", uploadedFile.getId());
 
-        return Archivo.builder()
-                .googleDriveFileId(uploadedFile.getId())
-                .nombre(uploadedFile.getName())
-                .mimeType(uploadedFile.getMimeType())
-                .tamano(uploadedFile.getSize())
-                .materiaFolderId(materiaFolderId)
-                .semestreFolderId(semestreFolderId)
-                .googleDriveFileId(uploadedFile.getId())
-                .googleDriveWebViewLink(uploadedFile.getWebViewLink())
-                .descripcion(request.descripcion())
-                .materia(request.materia())
-                .semestreFolderId(semestreFolderId)
-                .build();
+        archivo.setMateriaFolderId(materiaFolderId);
+        archivo.setSemestreFolderId(semestreFolderId);
+        archivoMapper.updateEntityFromFile(uploadedFile, archivo);
     }
 
     @Transactional

@@ -2,26 +2,28 @@ package com.example.sigu.service.implementation;
 
 import com.example.sigu.persistence.entity.Usuario;
 import com.example.sigu.persistence.repository.IUsuarioRepository;
+import com.example.sigu.service.exception.UsuarioNotFoundException;
 import com.example.sigu.service.interfaces.IUsuarioService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UsuarioServiceImpl implements IUsuarioService {
 
-    @Autowired
-    private IUsuarioRepository iUsuarioRepository;
+    private final IUsuarioRepository iUsuarioRepository;
 
     @Override
-    public Usuario agregar(Usuario usuario) {
-        return iUsuarioRepository.save(usuario);
+    public void agregar(Usuario usuario) {
+        iUsuarioRepository.save(usuario);
     }
 
     @Override
-    public Optional<Usuario> findById(Long id) {
-        return iUsuarioRepository.findById(id);
+    public Usuario findById(Long id) {
+        return iUsuarioRepository.findById(id)
+                .orElseThrow(() -> new UsuarioNotFoundException("No existe usuario asociado al ID: " + id));
     }
 
     @Override

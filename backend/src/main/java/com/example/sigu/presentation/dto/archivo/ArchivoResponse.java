@@ -10,15 +10,14 @@ import java.time.LocalDate;
 public record ArchivoResponse(
         Long id,
         String nombre,
-        String mimetype,
+        String mimeType,
         Long tamano,
         String googleDriveFileId,
-        String googleDriveMateriaFolderId,
-        String googleDriveSemestreFolderId,
+        String materiaFolderId,
+        String semestreFolderId,
         String googleDriveWebViewLink,
         String descripcion,
         LocalDate fechaModificacion,
-        MateriaResponse materia,
-        String mensaje
+        MateriaResponse materia
 ) {
 }
