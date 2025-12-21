@@ -119,6 +119,16 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(NotaCalcularRequerimientoException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleNotaCalcularRequerimientoException(NotaCalcularRequerimientoException ex) {
+        return new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                Instant.now()
+        );
+    }
+
     @ExceptionHandler(IOException.class)
     public ResponseEntity<Map<String, String>> handleIOException(IOException ex) {
         log.error("Error de IO: ", ex);
