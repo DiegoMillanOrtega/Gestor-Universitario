@@ -1,63 +1,31 @@
 package com.example.sigu.util.mapper;
 
 import com.example.sigu.persistence.entity.Archivo;
-import com.example.sigu.persistence.entity.Materia;
 import com.example.sigu.presentation.dto.archivo.ArchivoGoogleDriveRequest;
 import com.example.sigu.presentation.dto.archivo.ArchivoRequest;
 import com.example.sigu.presentation.dto.archivo.ArchivoResponse;
-import com.example.sigu.service.exception.MateriaNotFoundException;
-import com.example.sigu.service.interfaces.IMateriaService;
 import com.google.api.services.drive.model.File;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Service
-@RequiredArgsConstructor
-public class ArchivoMapper {
+@Mapper(
+        componentModel = "spring",
+        uses = { MateriaMapper.class },
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+)
+public interface ArchivoMapper {
 
-    private final IMateriaService materiaService;
-    private final MateriaMapper materiaMapper;
+    @Mapping(target = "materia", ignore = true)
+    Archivo toEntity(ArchivoRequest request);
 
-    public Archivo toArchivo(ArchivoRequest archivoRequest) {
-        Materia materia = materiaService.findById(archivoRequest.materiaId())
-                .orElseThrow(() -> new MateriaNotFoundException("La materia con ID: " + archivoRequest.materiaId() +" no existe"));
+    ArchivoResponse toResponse(Archivo archivo);
 
-        return Archivo.builder()
-                .nombre(archivoRequest.nombre())
-                .descripcion(archivoRequest.descripcion())
-                .materia(materia)
-                .build();
-    }
-
-
-    public ArchivoResponse toArchivoResponse(Archivo archivo) {
-        return new ArchivoResponse(
-                archivo.getId(),
-                archivo.getNombre(),
-                archivo.getMimeType(),
-                archivo.getTamano(),
-                archivo.getGoogleDriveFileId(),
-                archivo.getMateriaFolderId(),
-                archivo.getSemestreFolderId(),
-                archivo.getGoogleDriveWebViewLink(),
-                archivo.getDescripcion(),
-                archivo.getFechaModificacion(),
-                materiaMapper.toMateriaResponse(archivo.getMateria()),
-                null
-        );
-    }
-
-    public ArchivoGoogleDriveRequest toArchivoGoogleDriveRequest(ArchivoRequest request) {
-        Materia materia = materiaService.findById(request.materiaId())
-                .orElseThrow(() -> new MateriaNotFoundException("La materia con ID: " + request.materiaId() +" no existe"));
-
-        return ArchivoGoogleDriveRequest.builder()
-                .nombre(request.nombre())
-                .descripcion(request.descripcion())
-                .materia(materia)
-                .build();
-    }
-
-
-
+    @Mapping(target = "googleDriveFileId", source = "file.id")
+    @Mapping(target = "tamano", source = "file.size")
+    @Mapping(target = "mimeType", source = "file.mimeType")
+    @Mapping(target = "googleDriveWebViewLink", source = "file.webViewLink")
+    @Mapping(target = "id", ignore = true)
+    void updateEntityFromFile(File file, @MappingTarget Archivo entity);
 }
