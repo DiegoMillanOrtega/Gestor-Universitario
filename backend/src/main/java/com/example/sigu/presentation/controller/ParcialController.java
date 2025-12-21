@@ -26,16 +26,14 @@ public class ParcialController {
     public List<ParcialResponse> findAll() {
         return service.findAll()
                 .stream()
-                .map(mapper::toParcialResponse)
+                .map(mapper::toResponse)
                 .toList();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ParcialResponse> findById(@PathVariable Long id) {
-        return service.findById(id)
-                .map(mapper::toParcialResponse)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(mapper.toResponse(service.findById(id)));
+
     }
 
     @PostMapping
@@ -44,7 +42,7 @@ public class ParcialController {
 
         return ResponseEntity
                 .created(URI.create("/api/parciales/" + parcialSaved.getId()))
-                .body(mapper.toParcialResponse(parcialSaved));
+                .body(mapper.toResponse(parcialSaved));
     }
 
     @DeleteMapping("/{id}")

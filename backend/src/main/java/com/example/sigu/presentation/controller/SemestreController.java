@@ -27,16 +27,18 @@ public class SemestreController {
     public List<SemestreResponse> findAll() {
         return semestreService.findAll()
                 .stream()
-                .map(semestreMapper::toSemestreResponse)
+                .map(semestreMapper::toResponse)
                 .toList();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<SemestreResponse> findById(@PathVariable Long id) {
-        return semestreService.findById(id)
-                .map(semestreMapper::toSemestreResponse)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(semestreMapper.toResponse(semestreService.findById(id)));
+    }
+
+    @GetMapping("/{id}/semanas-restantes")
+    public ResponseEntity<Long> calcularSemanasRestantes(@PathVariable Long id){
+        return ResponseEntity.ok(semestreService.obtenerSemanasRestantes(id));
     }
 
     @PostMapping
@@ -45,7 +47,7 @@ public class SemestreController {
 
         return ResponseEntity
                 .created(URI.create("/api/materias/"+ semestre.getId()))
-                .body(semestreMapper.toSemestreResponse(semestre));
+                .body(semestreMapper.toResponse(semestre));
     }
 
     @DeleteMapping("/{id}")

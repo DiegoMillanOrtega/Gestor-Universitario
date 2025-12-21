@@ -28,16 +28,13 @@ public class ArchivoController {
     public List<ArchivoResponse> findAll(){
         return archivoService.findAll()
                 .stream()
-                .map(archivoMapper::toArchivoResponse)
+                .map(archivoMapper::toResponse)
                 .toList();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ArchivoResponse> findById(@PathVariable Long id){
-        return archivoService.findById(id)
-                .map(archivoMapper::toArchivoResponse)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(archivoMapper.toResponse(archivoService.findById(id)));
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -49,7 +46,7 @@ public class ArchivoController {
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(archivoMapper.toArchivoResponse(archivoGuardado));
+                .body(archivoMapper.toResponse(archivoGuardado));
     }
 
 
@@ -67,6 +64,6 @@ public class ArchivoController {
     ) throws IOException {
         Archivo archivoActualizado = archivoService.actualizarArchivo(id, request, file);
 
-        return ResponseEntity.ok(archivoMapper.toArchivoResponse(archivoActualizado));
+        return ResponseEntity.ok(archivoMapper.toResponse(archivoActualizado));
     }
 }

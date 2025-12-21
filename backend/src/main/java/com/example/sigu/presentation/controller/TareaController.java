@@ -26,16 +26,13 @@ public class TareaController {
     public List<TareaResponse> findAll() {
         return service.findAll()
                 .stream()
-                .map(mapper::toTareaResponse)
+                .map(mapper::toResponse)
                 .toList();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<TareaResponse> findById(@PathVariable Long id){
-        return service.findById(id)
-                .map(mapper::toTareaResponse)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(mapper.toResponse(service.findById(id)));
     }
 
 
@@ -44,12 +41,12 @@ public class TareaController {
         Tarea tareaSaved = service.save(request);
         return ResponseEntity
                 .created(URI.create("/api/tareas/"+ tareaSaved.getId()))
-                .body(mapper.toTareaResponse(tareaSaved));
+                .body(mapper.toResponse(tareaSaved));
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<TareaResponse> patch(@PathVariable Long id, @Valid @RequestBody TareaPatchRequest request) {
-        return ResponseEntity.ok(mapper.toTareaResponse(service.patch(id, request)));
+        return ResponseEntity.ok(mapper.toResponse(service.patch(id, request)));
     }
 
     @DeleteMapping("/{id}")

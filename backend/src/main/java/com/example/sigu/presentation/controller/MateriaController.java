@@ -27,7 +27,7 @@ public class MateriaController {
     public ResponseEntity<List<MateriaResponse>> findAll() {
         List<MateriaResponse> materias = materiaService.findAll()
                 .stream()
-                .map(materiaMapper::toMateriaResponse)
+                .map(materiaMapper::toResponse)
                 .toList();
 
         if (materias.isEmpty()) {
@@ -41,7 +41,7 @@ public class MateriaController {
     public ResponseEntity<List<MateriaResponse>> findAllBySemestreId(@PathVariable Long semestreId) {
         List<MateriaResponse> materias = materiaService.buscarTodoPorSemestreId(semestreId)
                 .stream()
-                .map(materiaMapper::toMateriaResponse)
+                .map(materiaMapper::toResponse)
                 .toList();
 
         if (materias.isEmpty()) {
@@ -53,10 +53,7 @@ public class MateriaController {
 
     @GetMapping("/{id}")
     public ResponseEntity<MateriaResponse> findById(@PathVariable Long id) {
-        return materiaService.findById(id)
-                .map(materiaMapper::toMateriaResponse)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        return ResponseEntity.ok(materiaMapper.toResponse(materiaService.findById(id)));
     }
 
     @PostMapping
@@ -65,7 +62,7 @@ public class MateriaController {
 
         return ResponseEntity
                 .created(URI.create("/api/materias/" + savedMateria.getId()))
-                .body(materiaMapper.toMateriaResponse(savedMateria));
+                .body(materiaMapper.toResponse(savedMateria));
     }
 
     @DeleteMapping("/{id}")
