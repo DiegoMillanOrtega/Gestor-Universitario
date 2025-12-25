@@ -20,5 +20,6 @@ public interface SemestreMapper {
     @Mapping(target = "usuario", ignore = true)
     Semestre toEntity(SemestreRequest request);
 
+    @Mapping(target = "progreso", expression = "java(entity.getProgreso())")
     SemestreResponse toResponse(Semestre entity);
 }

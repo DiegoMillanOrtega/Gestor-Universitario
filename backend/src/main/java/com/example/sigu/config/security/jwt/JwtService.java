@@ -17,7 +17,7 @@ public class JwtService {
 
     @Value("${application.security.jwt.secret-key}")
     private String secretKey;
-    private final Duration expiration = Duration.ofMinutes(15);
+    private final Duration expiration = Duration.ofDays(5); //TODO: Cambiar a minutos
 
     public String generateToken(String username) {
         return Jwts.builder()

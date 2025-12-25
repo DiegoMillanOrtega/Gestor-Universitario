@@ -21,6 +21,5 @@ public interface NotaMapper {
     @Mapping(target = "materia", ignore = true)
     void toEntityUpdateDto(NotaUpdateRequest request, @MappingTarget Nota entity);
 
-    @Mapping(target = "promedio", expression = "java(nota.getPromedio())")
     NotaResponse toResponse(Nota nota);
 }

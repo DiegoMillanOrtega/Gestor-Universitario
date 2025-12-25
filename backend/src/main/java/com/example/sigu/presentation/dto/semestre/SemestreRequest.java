@@ -18,18 +18,14 @@ public record SemestreRequest(
         @NotBlank(message = "El nombre del semestre es obligatorio")
         String nombre,
 
-        @Positive(message = "El año debe ser un valor positivo")
-        @NotNull(message = "El año del semestre es obligatorio")
-        Integer anio,
-
         @NotNull(message = "La fecha de inicio es obligatoria")
         LocalDate fechaInicio,
 
         @NotNull(message = "La fecha de fin es obligatoria")
         LocalDate fechaFin,
 
-        @NotNull(message = "Debe especificar si es el semestre actual")
-        Boolean semestreActual,
+        @NotNull(message = "El estado es obligatorio")
+        EstadoSemestre estado,
 
         @Positive(message = "El ID de usuario debe ser un valor positivo")
         @NotNull(message = "El ID del usuario creador es obligatorio")

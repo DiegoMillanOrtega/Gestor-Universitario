@@ -39,6 +39,16 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(ActiveSemestreAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleActiveSemestreAlreadyExistsException(ActiveSemestreAlreadyExistsException ex) {
+        return new ErrorResponse(
+                HttpStatus.CONFLICT.value(),
+                ex.getMessage(),
+                Instant.now()
+        );
+    }
+
     @ExceptionHandler(MateriaNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleMateriaNotFoundException(MateriaNotFoundException ex) {
@@ -124,6 +134,16 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleNotaCalcularRequerimientoException(NotaCalcularRequerimientoException ex) {
         return new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                Instant.now()
+        );
+    }
+
+    @ExceptionHandler(AuthException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleAuthException(AuthException ex) {
+        return new ErrorResponse(
+                HttpStatus.UNAUTHORIZED.value(),
                 ex.getMessage(),
                 Instant.now()
         );

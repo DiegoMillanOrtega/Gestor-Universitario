@@ -1,0 +1,31 @@
+<div class="container mx-auto px-4 py-1 max-w-7xl">
+    <div class="flex flex-col gap-6 mb-8">
+        <div class="flex flex-col justify-between sm:flex-row gap-3">
+            <div class="flex flex-col sm:flex-row gap-3">
+                <p-select [options]="filterStatusOptions" optionLabel="label" optionValue="value" [(ngModel)]="filterStatus" placeholder="Filtrar por estado" class="w-full md:w-56" [checkmark]="true">
+                    <ng-template #item let-item>
+                        <p-badge [value]="item.label" [class]="item.className"></p-badge>
+                    </ng-template>
+                </p-select>
+                <p-select [options]="sortByOptions" optionLabel="label" optionValue="value" [(ngModel)]="sortBy" placeholder="Ordenar por" class="w-full md:w-56" [checkmark]="true"></p-select>
+            </div>
+
+            <button pButton size="large" class="sm:self-start" icon="pi pi-plus" routerLink="/pages/semestres/agregar">Agregar Semestre</button>
+        </div>
+
+        @if (semestresfiltrados().length === 0 && semestres().length === 0) {
+        <app-empty-state (agregarSemestre)="agregarSemestre()"></app-empty-state>
+        } @else if (semestresfiltrados().length === 0) {
+        <div class="text-center py-12">
+            <p>No se encontraron semestres con los filtros seleccionados</p>
+        </div>
+        } @else {
+        <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-2">
+            @for (semestre of semestresfiltrados(); track $index) {
+            <app-semestre-card [semestre]="semestre" (onDelete)="eliminarSemestre($event)"></app-semestre-card>
+            }
+        </div>
+        }
+    </div>
+</div>
+

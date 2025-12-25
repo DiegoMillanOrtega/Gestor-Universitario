@@ -25,10 +25,7 @@ public class SemestreController {
 
     @GetMapping
     public List<SemestreResponse> findAll() {
-        return semestreService.findAll()
-                .stream()
-                .map(semestreMapper::toResponse)
-                .toList();
+        return semestreService.findAll();
     }
 
     @GetMapping("/{id}")

@@ -1,5 +1,7 @@
 package com.example.sigu.presentation.controller;
 
+import com.example.sigu.auth.AuthService;
+import com.example.sigu.util.CookieUtils;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,6 +22,8 @@ import java.io.IOException;
 public class GoogleAuthController {
 
     private final GoogleAuthorizationCodeFlow flow;
+    private final AuthService authService;
+    private final CookieUtils cookieUtils;
 
     @Value("${google.redirect-uri}")
     private String redirectUri;
@@ -34,16 +39,18 @@ public class GoogleAuthController {
 
     // 2. Google te enviará aquí automáticamente
     @GetMapping("/oauth2/callback")
-    public String callback(@RequestParam("code") String code) throws IOException {
+    public void callback(@RequestParam("code") String code, HttpServletResponse response) throws IOException, GeneralSecurityException {
         TokenResponse tokenResponse = flow.newTokenRequest(code)
                 .setRedirectUri(redirectUri)
                 .execute();
 
-        // Guardamos el token con el ID "user-personal"
-        Credential credential = flow.createAndStoreCredential(tokenResponse, "user");
-
+        String myJwt = authService.processGoogleLogin(tokenResponse);
+        String email = authService.getEmailFromToken(tokenResponse);
+        Credential credential = flow.createAndStoreCredential(tokenResponse, email);
         log.info("Credential created {}", credential);
 
-        return "Autorización completada. Ya puedes usar Google Tasks/Drive.";
+        cookieUtils.setTokenCookie(response, myJwt);
+        response.sendRedirect("http://localhost:4200/dashboard");
     }
+
 }

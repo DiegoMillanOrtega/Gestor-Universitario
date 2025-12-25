@@ -10,7 +10,6 @@ public record NotaResponse(
         BigDecimal p2,
         BigDecimal p3,
         BigDecimal ex,
-        MateriaResponse materia,
-        BigDecimal promedio
+        MateriaResponse materia
 ) {
 }

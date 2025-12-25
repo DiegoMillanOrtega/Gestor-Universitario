@@ -1,0 +1,12 @@
+<div class="flex flex-col items-center justify-center min-h-[400px] text-center px-4">
+    <div class="rounded-full bg-gray-200 dark:bg-gray-700 p-6 mb-4">
+        <i class="pi pi-bookmark text-gray-500 dark:text-gray-100" style="font-size: 4rem;"></i>
+        <!-- <BookMarked class="size-12 text-muted-foreground" /> -->
+    </div>
+    <h2 class="text-2xl font-semibold mb-2 text-balance">No tienes semestres registrados</h2>
+    <p class="text-muted-foreground mb-6 max-w-sm text-pretty">Comienza a organizar tu carrera académica creando tu primer semestre. Podrás gestionar materias, créditos y hacer seguimiento de tu progreso.</p>
+    <button pButton size="large" (click)="agregarSemestre.emit()">
+        <i class="pi pi-plus mr-2" style="font-size: 1.1rem;"></i>
+        Crear primer semestre
+    </button>
+</div>

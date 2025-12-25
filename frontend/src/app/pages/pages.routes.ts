@@ -4,8 +4,9 @@ import { Crud } from './crud/crud';
 import { Empty } from './empty/empty';
 
 export default [
+    { path: 'semestres', loadChildren: () => import('./semestre/semestre.routes') },
     { path: 'documentation', component: Documentation },
     { path: 'crud', component: Crud },
     { path: 'empty', component: Empty },
-    { path: '**', redirectTo: '/notfound' }
+    { path: '**', redirectTo: '/notfound' },
 ] as Routes;

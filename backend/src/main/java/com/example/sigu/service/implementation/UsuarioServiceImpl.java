@@ -16,8 +16,9 @@ public class UsuarioServiceImpl implements IUsuarioService {
     private final IUsuarioRepository iUsuarioRepository;
 
     @Override
-    public void agregar(Usuario usuario) {
+    public Usuario agregar(Usuario usuario) {
         iUsuarioRepository.save(usuario);
+        return usuario;
     }
 
     @Override
