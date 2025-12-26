@@ -67,7 +67,7 @@ public class SemestreServiceImpl implements ISemestreService {
         }
 
         //No pueden haber dos semestres activos
-        if (EstadoSemestre.ACTIVO.equals(request.estado()) && semestreRepository.existsByEstado(EstadoSemestre.ACTIVO)) {
+        if (EstadoSemestre.ACTIVO.equals(request.estado()) && semestreRepository.existsByEstadoAndIdNot(EstadoSemestre.ACTIVO, request.id())) {
             throw new ActiveSemestreAlreadyExistsException();
         }
 

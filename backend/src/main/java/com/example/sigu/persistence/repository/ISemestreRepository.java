@@ -25,6 +25,7 @@ public interface ISemestreRepository extends JpaRepository<Semestre,Long> {
     Optional<Semestre> findByIdAndUsuarioId(Long semestreId,Long usuarioId);
 
     boolean existsByEstado(EstadoSemestre estado);
+    boolean existsByEstadoAndIdNot(EstadoSemestre estado, Long id);
 
     @Query("""
            SELECT CASE WHEN COUNT(s) > 0 THEN TRUE ELSE FALSE END 
