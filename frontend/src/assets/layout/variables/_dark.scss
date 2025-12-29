@@ -2,4 +2,9 @@
     --surface-ground: var(--p-surface-950);
     --code-background: var(--p-surface-800);
     --code-color: var(--p-surface-100);
+    --foreground: oklch(0.95 0 0);
+    --muted: oklch(0.22 0 0);
+    --muted-foreground: oklch(0.6 0 0);
+    --destructive: oklch(0.5 0.2 25);
+    --border: oklch(0.22 0 0);
 }

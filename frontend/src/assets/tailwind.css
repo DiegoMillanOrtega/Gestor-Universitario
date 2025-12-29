@@ -9,4 +9,11 @@
     --breakpoint-lg: 992px;
     --breakpoint-xl: 1200px;
     --breakpoint-2xl: 1920px;
+
+    
+    --color-foreground: var(--foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-destructive: var(--destructive);
+    --color-border: var(--border);
 }
