@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputTextModule } from 'primeng/inputtext';
@@ -18,6 +18,7 @@ import { DividerModule } from 'primeng/divider';
 })
 export class Login {
     private authService = inject(AuthService);
+    private router = inject(Router);
 
     email: string = '';
 
@@ -26,6 +27,13 @@ export class Login {
     checked: boolean = false;
 
     onSubmit() {
-        this.authService.login(this.email, this.password).subscribe();
+        this.authService.login(this.email, this.password).subscribe({
+            next: (res) => {
+                this.router.navigate(['']);
+            },
+            error: (err) => {
+                console.log(err);
+            }
+        });
     }
 }
