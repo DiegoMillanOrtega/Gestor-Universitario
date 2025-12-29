@@ -1,0 +1,67 @@
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div
+        class="p-4 bg-card border border-border/60 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+    >
+        <div class="flex items-center justify-between">
+            <div>
+                <p
+                    class="text-sm font-medium text-muted-foreground uppercase tracking-wider"
+                >
+                    Total Materias
+                </p>
+                <p class="text-3xl font-bold mt-1 text-card-foreground">
+                    {{ total() }}
+                </p>
+            </div>
+            <div
+                class="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center"
+            >
+                <i class="pi pi-book text-primary text-2xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <div
+        class="p-4 bg-card border border-border/60 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+    >
+        <div class="flex items-center justify-between">
+            <div>
+                <p
+                    class="text-sm font-medium text-muted-foreground uppercase tracking-wider"
+                >
+                    Créditos Totales
+                </p>
+                <p class="text-3xl font-bold mt-1 text-card-foreground">
+                    {{ creditos() }}
+                </p>
+            </div>
+            <div
+                class="h-12 w-12 rounded-lg bg-emerald-500/10 flex items-center justify-center"
+            >
+                <i class="pi pi-graduation-cap text-emerald-500 text-2xl"></i>
+            </div>
+        </div>
+    </div>
+
+    <div
+        class="p-4 bg-card border border-border/60 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+    >
+        <div class="flex items-center justify-between">
+            <div>
+                <p
+                    class="text-sm font-medium text-muted-foreground uppercase tracking-wider"
+                >
+                    Activas
+                </p>
+                <p class="text-3xl font-bold mt-1 text-card-foreground">
+                    {{ activas() }}
+                </p>
+            </div>
+            <div
+                class="h-12 w-12 rounded-lg bg-amber-500/10 flex items-center justify-center"
+            >
+                <i class="pi pi-bolt text-amber-500 text-2xl"></i>
+            </div>
+        </div>
+    </div>
+</div>

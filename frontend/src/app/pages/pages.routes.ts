@@ -5,6 +5,7 @@ import { Empty } from './empty/empty';
 
 export default [
     { path: 'semestres', loadChildren: () => import('./semestre/semestre.routes') },
+    { path: 'materias', loadChildren: () => import('./materia/materia.routes') },
     { path: 'documentation', component: Documentation },
     { path: 'crud', component: Crud },
     { path: 'empty', component: Empty },

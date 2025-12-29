@@ -62,7 +62,14 @@ export class AppMenu {
                     },
                     {
                         label: 'Materias',
-                        icon: 'pi pi-fw pi-book'
+                        icon: 'pi pi-fw pi-book',
+                        routerLink: ['/pages/materias'],
+                        routerLinkActiveOptions: {
+                            paths: 'subset', // Indica que si es una sub-ruta, siga activo
+                            queryParams: 'ignored',
+                            matrixParams: 'ignored',
+                            fragment: 'ignored'
+                        }
                     },
                     {
                         label: 'Tareas',

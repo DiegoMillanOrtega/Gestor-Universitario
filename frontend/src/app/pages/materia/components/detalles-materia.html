@@ -1,0 +1,95 @@
+<p-dialog
+    [header]="materiaSeleccionada()?.nombre || 'Detalles de la Materia'"
+    [(visible)]="visible"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [dismissableMask]="true"
+    [style]="{ width: '90vw', maxWidth: '450px' }"
+    breakpoints="{ '960px': '75vw', '640px': '90vw' }"
+>
+    <ng-template #header>
+        <div class="flex items-center gap-2">
+            <i class="pi pi-book text-primary text-xl"></i>
+            <span class="font-bold text-xl leading-none">
+                {{ materiaSeleccionada()?.nombre }}
+            </span>
+        </div>
+    </ng-template>
+
+    @if (materiaSeleccionada(); as materia) {
+    <div class="divide-y divide-border/40">
+        <div class="grid grid-cols-2 gap-6 py-4">
+            <div class="flex flex-col gap-1">
+                <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Código
+                </span>
+                <span class="font-mono text-sm px-2 py-1 bg-secondary/50 rounded-md w-fit">
+                    {{ materia.codigo }}
+                </span>
+            </div>
+            <div class="flex flex-col gap-1">
+                <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Estado
+                </span>
+                <p-badge
+                    [value]="materia.estado"
+                    [class]="materia.estado | materiaEstadoColor"
+                />
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6 py-4">
+            <div class="flex flex-col gap-1">
+                <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Créditos
+                </span>
+                <span class="font-medium">{{ materia.numCreditos }} créditos</span>
+            </div>
+            <div class="flex flex-col gap-1">
+                <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    Semestre
+                </span>
+                <span class="text-sm">{{ materia.semestre.nombre }}</span>
+            </div>
+        </div>
+
+        <div class="space-y-4 py-4">
+            <div class="flex items-center gap-3">
+                <div class="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <i class="pi pi-user text-primary"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-[10px] uppercase font-bold text-muted-foreground">Profesor</span>
+                    <span class="text-sm font-medium">{{ materia.profesor }}</span>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="h-8 w-8 rounded-full bg-orange-500/10 flex items-center justify-center">
+                    <i class="pi pi-calendar text-orange-500"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-[10px] uppercase font-bold text-muted-foreground">Horario</span>
+                    <span class="text-sm font-medium">{{ materia.horario || 'No asignado' }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    } @else {
+        <div class="py-8 text-center text-muted-foreground">
+            <i class="pi pi-spin pi-spinner mb-2"></i>
+            <p>Cargando detalles...</p>
+        </div>
+    }
+
+    <ng-template #footer>
+        <p-button 
+            label="Cerrar" 
+            icon="pi pi-check" 
+            (click)="visible.set(false)" 
+            severity="secondary" 
+            [text]="true"
+        />
+    </ng-template>
+</p-dialog>

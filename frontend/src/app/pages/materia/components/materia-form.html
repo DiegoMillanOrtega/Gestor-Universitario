@@ -1,0 +1,114 @@
+<form [formGroup]="formMateria" (ngSubmit)="onSubmit()">
+    <p-card
+        [header]="headerText()"
+        subheader="Completa los datos de la materia"
+    >
+        @if (materiaResource.isLoading()) {
+        <div class="flex justify-center py-8">
+            <i class="pi pi-spin pi-spinner text-3xl"></i>
+        </div>
+        } @else {
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
+            <div class="flex flex-col gap-2 md:col-span-2">
+                <label for="nombre" class="font-medium">
+                    Nombre de la materia <span class="text-red-500">*</span>
+                </label>
+                <input
+                    pInputText
+                    id="nombre"
+                    formControlName="nombre"
+                    placeholder="Ej: Algoritmos"
+                    [invalid]="controlInvalido('nombre')"
+                />
+                @if (controlInvalido('nombre')) {
+                <small class="text-red-500"
+                    >El nombre es obligatorio (mín. 3 caracteres).</small
+                >
+                }
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label for="codigo" class="font-medium"
+                    >Código <span class="text-red-500">*</span></label
+                >
+                <input
+                    pInputText
+                    id="codigo"
+                    formControlName="codigo"
+                    [invalid]="controlInvalido('codigo')"
+                />
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label for="numCreditos" class="font-medium"
+                    >Créditos <span class="text-red-500">*</span></label
+                >
+                <p-inputnumber
+                    formControlName="numCreditos"
+                    [min]="0"
+                    [max]="10"
+                    [showButtons]="true"
+                    [invalid]="controlInvalido('numCreditos')"
+                />
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label for="semestreId" class="font-medium"
+                    >Semestre <span class="text-red-500">*</span></label
+                >
+                <p-select
+                    id="semestreId"
+                    formControlName="semestreId"
+                    [options]="semestreResource.value() ?? []"
+                    optionLabel="nombre"
+                    optionValue="id"
+                    placeholder="Seleccione semestre"
+                    [loading]="semestreResource.isLoading()"
+                    class="w-full"
+                />
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <label for="estado" class="font-medium"
+                    >Estado <span class="text-red-500">*</span></label
+                >
+                <p-select
+                    id="estado"
+                    formControlName="estado"
+                    [options]="estadoMateriaOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    class="w-full"
+                />
+            </div>
+
+            <div class="flex flex-col gap-2 md:col-span-2">
+                <label for="profesor" class="font-medium">Profesor</label>
+                <input pInputText id="profesor" formControlName="profesor" />
+            </div>
+        </div>
+        }
+
+        <ng-template #footer>
+            <div class="flex flex-col-reverse sm:flex-row gap-3">
+                <p-button
+                    label="Cancelar"
+                    icon="pi pi-times"
+                    [outlined]="true"
+                    severity="secondary"
+                    routerLink="/pages/materias"
+                    styleClass="w-full sm:w-auto bg-transparent"
+                />
+
+                <p-button
+                    [label]="labelButton()"
+                    icon="pi pi-check"
+                    type="submit"
+                    severity="success"
+                    [loading]="false"
+                    styleClass="w-full sm:flex-1"
+                />
+            </div>
+        </ng-template>
+    </p-card>
+</form>

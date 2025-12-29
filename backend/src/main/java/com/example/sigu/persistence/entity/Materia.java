@@ -1,6 +1,7 @@
 package com.example.sigu.persistence.entity;
 
 
+import com.example.sigu.persistence.enums.EstadoMateria;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,6 +21,9 @@ public class Materia {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String codigo;
     private String nombre;
     private int numCreditos;
     private String profesor;
@@ -39,6 +43,10 @@ public class Materia {
 
     @Column(precision = 2, scale = 1, nullable = false)
     private BigDecimal ex = BigDecimal.ZERO;
+
+    @Enumerated(EnumType.STRING)
+    private EstadoMateria estado;
+
 
     @Transient
     public BigDecimal getPromedio() {

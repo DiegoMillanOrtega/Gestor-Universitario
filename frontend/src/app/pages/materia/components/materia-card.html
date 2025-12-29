@@ -1,0 +1,72 @@
+<p-card
+    class="border-border/40 hover:border-primary/50 transition-colors cursor-pointer group"
+>
+    <ng-template #title>
+        <div class="flex items-start justify-between pb-3">
+            <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                    <p-badge
+                        class="font-mono text-xs"
+                        [value]="materia().codigo"
+                        severity="secondary"
+                    />
+                    <p-badge
+                        [class]="materia().estado | materiaEstadoColor"
+                        [value]="materia().estado"
+                    />
+                </div>
+                <h3 class="font-semibold !text-lg leading-tight mb-1 text-balance">
+                    {{ materia().nombre }}
+                </h3>
+            </div>
+
+            <p-menu #menu [model]="menuItemsOptions()" [popup]="true">
+                <ng-template #item let-item>
+                    <a
+                        pRipple
+                        class="flex items-center px-3 py-2 cursor-pointer"
+                        (click)="item.command()"
+                    >
+                        <span [class]="item.icon"></span>
+                        <span [class]="item.linkClass" class="ms-2">{{ item.label }}</span>
+                        @if (item.badge) {
+                            <p-badge class="ms-auto" [value]="item.badge" />
+                        }
+                    </a>
+                </ng-template>
+            </p-menu>
+
+            <p-button
+                (click)="menu.toggle($event); $event.stopPropagation()"
+                icon="pi pi-ellipsis-v"
+                [text]="true"
+                severity="secondary"
+                styleClass="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+            />
+        </div>
+    </ng-template>
+
+    <div class="space-y-3" (click)="verDetalles.emit(materia())">
+        <div class="flex items-center gap-2 text-sm">
+            <i class="text-muted-foreground pi pi-user"></i>
+            <span class="text-muted-foreground">{{ materia().profesor }}</span>
+        </div>
+        
+        <div class="flex items-center gap-2 text-sm">
+            <i class="text-muted-foreground pi pi-clock"></i>
+            <span class="text-muted-foreground">
+                {{ materia().horario || 'Horario no definido' }}
+            </span>
+        </div>
+
+        <div class="flex items-center justify-between pt-2 border-t border-border/40">
+            <p-badge
+                severity="secondary"
+                [value]="materia().numCreditos + ' Créditos'"
+            />
+            <span class="text-xs text-muted-foreground">
+                {{ materia().semestre.nombre }}
+            </span>
+        </div>
+    </div>
+</p-card>
