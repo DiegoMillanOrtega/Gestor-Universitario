@@ -41,23 +41,12 @@ export class AddSemestreForm implements OnInit {
         { label: 'Planificado', value: 'PLANIFICADO' }
     ];
 
-    // cargaAcademicaOptions: { label: string; value: CargaAcademica }[] = [
-    //     { label: 'Carga baja', value: 'BAJA' },
-    //     { label: 'Carga media', value: 'MEDIA' },
-    //     { label: 'Carga alta', value: 'ALTA' }
-    // ];
 
     estadoStyleClass: Record<SemestreStatus, string> = {
         ACTIVO: '!text-green-500',
         FINALIZADO: '!text-gray-500',
         PLANIFICADO: '!text-yellow-500'
     };
-
-    // cargaAcademicaStyleClass: Record<CargaAcademica, string> = {
-    //     BAJA: '!text-green-500',
-    //     MEDIA: '!text-yellow-500',
-    //     ALTA: '!text-red-500'
-    // };
 
     semestreForm = this.formBuilder.group({
         id: [null as string | null],
@@ -81,11 +70,6 @@ export class AddSemestreForm implements OnInit {
         const key = valor as SemestreStatus;
         return this.estadoStyleClass[key] || '';
     }
-
-    // getCargaAcademicaClass(valor: any): string {
-    //     const key = valor as CargaAcademica;
-    //     return this.cargaAcademicaStyleClass[key] || '';
-    // }
 
     esInvalido(controlName: string) {
         const control = this.semestreForm.get(controlName);
