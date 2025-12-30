@@ -1,9 +1,14 @@
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { SemestreService } from '../service/semestre.service';
-import { SemestreInterface } from '@/interface/semestre.interface';
 import { FormsModule } from '@angular/forms';
 import { SemestreCard } from './components/semestre-card';
 import { EmptyState } from './components/empty-state';
@@ -11,140 +16,138 @@ import { Router, RouterLink } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { BadgeModule } from 'primeng/badge';
+import { TagModule } from 'primeng/tag';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ToolbarModule } from 'primeng/toolbar';
 
 export interface FilterStatusOptions {
     label: string;
     value: string;
-    className: string;
+    severity: string;
 }
+
+export type SortOption = 'fecha' | 'promedio';
+export type StatusOption = 'All' | 'ACTIVO' | 'FINALIZADO' | 'PLANIFICADO';
 
 @Component({
     selector: 'app-semestre',
-    imports: [SelectModule, ButtonModule, FormsModule, SemestreCard, EmptyState, ToastModule, ConfirmDialogModule, RouterLink, BadgeModule],
-    templateUrl: 'semestre.html'
+    standalone: true,
+    imports: [
+        SelectModule,
+        ButtonModule,
+        FormsModule,
+        SemestreCard,
+        EmptyState,
+        ToastModule,
+        ConfirmDialogModule,
+        RouterLink,
+        BadgeModule,
+        TagModule,
+        ProgressSpinnerModule,
+        ToolbarModule,
+    ],
+    templateUrl: 'semestre.html',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Semestre implements OnInit {
-    private semestreService = inject(SemestreService);
+export default class Semestre {
+    //Providers
     private router = inject(Router);
-    private messageService = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
+    private messageService = inject(MessageService);
+    private semestreService = inject(SemestreService);
 
-    semestres = signal<SemestreInterface[]>([]);
+    //Variables
+    sortBy = signal<SortOption>('fecha');
+    filterStatus = signal<StatusOption>('All');
 
-    sortBy = signal<string>('fecha');
+    //OptionsSelect
+    filterStatusOptions: FilterStatusOptions[] = [
+        {
+            label: 'Todos los estados',
+            value: 'All',
+            severity: 'secondary',
+        },
+        {
+            label: 'Activo',
+            value: 'ACTIVO',
+            severity: 'success',
+        },
+        {
+            label: 'Finalizado',
+            value: 'FINALIZADO',
+            severity: 'secondary',
+        },
+        {
+            label: 'Planificado',
+            value: 'PLANIFICADO',
+            severity: 'warn',
+        },
+    ];
+
     sortByOptions: {}[] = [
         { label: 'Mas recientes', value: 'fecha' },
-        { label: 'Mejor promedio', value: 'promedio' }
+        { label: 'Mejor promedio', value: 'promedio' },
     ];
-    filterStatus = signal<string>('All');
-    filterStatusOptions: FilterStatusOptions[] = [];
 
-    semestresfiltrados = computed(() => {
-        // 1. Obtener los valores actuales de las señales
-        const listaOriginal = this.semestres();
-        const filtro = this.filterStatus();
+    //Resources
+    semestresResource = this.semestreService.getAllSemestres();
+
+    semestresFiltrados = computed(() => {
+        const data = this.semestresResource.value() ?? [];
+        console.log(data);
+
+        const estado = this.filterStatus();
         const orden = this.sortBy();
 
-        // 2. Filtrar
-        let resultado = listaOriginal.filter((s) => filtro === 'All' || s.estado === filtro);
+        let resultado =
+            estado === 'All' ? data : data.filter((s) => s.estado === estado);
 
-        // 3. Ordenar (hacemos una copia con [...] para no mutar el original si fuera necesario)
         return [...resultado].sort((a, b) => {
             if (orden === 'promedio') {
                 return (b.promedioActual ?? 0) - (a.promedioActual ?? 0);
             }
 
-            if (orden === 'fecha') {
-                const fechaA = new Date(a.fechaInicio).getTime();
-                const fechaB = new Date(b.fechaInicio).getTime();
-                return fechaB - fechaA; // Más recientes primero
-            }
-
-            return 0;
+            return (b.fechaInicio ?? '').localeCompare(a.fechaInicio ?? '');
         });
     });
-
-    ngOnInit(): void {
-        this.filterStatusOptions = [
-            {
-                label: 'Todos los estados',
-                value: 'All',
-                className: '!bg-gray-300 dark:!bg-gray-700 !text-black dark:!text-white '
-            },
-            {
-                label: 'Activo',
-                value: 'ACTIVO',
-                className: '!bg-green-700'
-            },
-            {
-                label: 'Finalizado',
-                value: 'FINALIZADO',
-                className: '!bg-gray-300 dark:!bg-gray-700 !text-black dark:!text-white' 
-            },
-            {
-                label: 'Planificado',
-                value: 'PLANIFICADO',
-                className: '!bg-yellow-600 !text-black dark:!text-white '
-            }
-        ];
-
-        this.obtenerSemestres();
-    }
-
-    obtenerSemestres() {
-        this.semestreService.getAllSemestres().subscribe((semestres) => {
-            this.semestres.set(semestres);
-        });
-    }
 
     agregarSemestre() {
         this.router.navigate(['/pages/semestres/agregar']);
     }
 
+    limpiarFiltro() {
+        this.filterStatus.set('All');
+        this.sortBy.set('fecha');
+    }
+
     eliminarSemestre(id: string) {
         this.confirmationService.confirm({
             key: 'globalConfirm',
-            target: event?.target as HTMLElement,
-            message: '¿Está seguro de que desea eliminar este semestre?',
-            header: 'Eliminar semestre',
-            icon: 'pi pi-info-circle',
-            rejectLabel: 'Cancelar',
-            rejectButtonProps: {
-                label: 'Cancelar',
-                icon: 'pi pi-times',
-                severity: 'secondary',
-                outlined: true
-            },
-            acceptButtonProps: {
-                label: 'Eliminar',
-                severity: 'danger',
-                icon: 'pi pi-trash'
-            },
+            message:
+                '¿Está seguro de que desea eliminar este semestre? Esta acción no se puede deshacer.',
+            header: 'Confirmar eliminación',
+            icon: 'pi pi-exclamation-triangle',
+            acceptButtonProps: { severity: 'danger' },
+            rejectButtonProps: { severity: 'secondary' },
             accept: () => {
                 this.semestreService.eliminarSemestre(id).subscribe({
                     next: () => {
-                        // 1. Actualizamos la lista local (usando tus Signals de Angular)
-                        this.semestres.set(this.semestres().filter((s) => s.id !== id));
-
-                        // 2. Mostramos el mensaje de éxito
+                        this.semestresResource.reload();
                         this.messageService.add({
                             severity: 'success',
                             summary: 'Eliminado',
-                            detail: 'El semestre ha sido eliminado correctamente.',
-                            life: 3000
+                            detail: 'Registro borrado con éxito',
                         });
                     },
                     error: (err) => {
-                        // Es buena práctica manejar errores aquí
                         this.messageService.add({
                             severity: 'error',
                             summary: 'Error',
-                            detail: err.error.message,
-                            life: 5000
+                            detail: err.error?.message || 'No se pudo eliminar',
                         });
-                    }
+                    },
                 });
-            }
+            },
         });
     }
 }

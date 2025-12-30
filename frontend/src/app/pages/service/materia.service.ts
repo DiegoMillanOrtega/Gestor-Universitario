@@ -1,6 +1,7 @@
-import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { inject, Injectable, Signal } from '@angular/core';
+import { HttpClient, httpResource, HttpResourceRef } from '@angular/common/http';
 import { MateriaInterface, MateriaRequestInterface } from '@/interface/materia.interface';
+
 
 @Injectable({providedIn: 'root'})
 export class MateriaService {
@@ -11,8 +12,15 @@ export class MateriaService {
 
     constructor() { }
 
-    getAllMaterias() {
-        return this.http.get<MateriaInterface[]>(this.baseUrl);
+    getAllMaterias(): HttpResourceRef<MateriaInterface[] | undefined> {
+        return httpResource<MateriaInterface[]>(() => 'http://localhost:8080/api/materias');
+    }
+
+    getMateria(id: Signal<string>): HttpResourceRef<MateriaInterface | undefined> {
+        return httpResource<MateriaInterface>(() => {
+            const idValue = id();
+            return idValue ? `${this.baseUrl}/${idValue}` : undefined;
+        });
     }
 
     guardarMateria(materia: MateriaRequestInterface) {

@@ -16,7 +16,6 @@ import { MateriaEstadoColorPipe } from 'src/shared/pipes/estado-materia.pipe';
 export class DetallesMateria{
 
     visible = model<boolean>(false);
-
     materiaSeleccionada = input<MateriaInterface | null>();
 
 }

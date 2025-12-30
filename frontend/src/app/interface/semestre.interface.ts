@@ -2,14 +2,13 @@ export interface SemestreInterface {
     id:             string;
     nombre:         string;
     anio:           number;
-    fechaInicio:    Date;
-    fechaFin:       Date;
+    fechaInicio:    string;
+    fechaFin:       string;
     estado:         SemestreStatus;
     cargaAcademica:  CargaAcademica;
     numeroMaterias: number;
     creditosTotales: number;
     progreso:        number;
-    // TODO: Reemplazar el tipo de dato promedioActual
     promedioActual:  number;
     materiasAprobadas: number;
     materiasEnCurso: number;

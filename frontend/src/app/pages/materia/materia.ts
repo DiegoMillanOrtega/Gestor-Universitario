@@ -25,6 +25,7 @@ import { MateriaCard } from './components/materia-card';
 import { MessageModule } from 'primeng/message';
 import { httpResource } from '@angular/common/http';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { SemestreService } from '../service/semestre.service';
 
 @Component({
     selector: 'app-materia',
@@ -43,10 +44,11 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
         MateriaCard,
         MessageModule,
         ProgressSpinnerModule,
+        DetallesMateria,
     ],
     templateUrl: 'materia.html',
 })
-export class Materia {
+export default class Materia {
 
     //Providers
     private router = inject(Router);
@@ -55,14 +57,15 @@ export class Materia {
 
     //Services
     private materiaService = inject(MateriaService);
+    private semestreService = inject(SemestreService);
 
     //DataApi
     semestresData = signal<SemestreInterface[]>([]);
     materiasData = signal<MateriaInterface[]>([]);
 
     //HttpResources
-    semestresResource = httpResource<SemestreInterface[]>(() => 'http://localhost:8080/api/semestres');
-    materiasResource = httpResource<MateriaInterface[]>(() => 'http://localhost:8080/api/materias');
+    semestresResource = this.semestreService.getAllSemestres();
+    materiasResource = this.materiaService.getAllMaterias();
 
     //Variables
     readonly TODOS_LOS_SEMESTRES = '0';

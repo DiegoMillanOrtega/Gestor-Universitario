@@ -3,7 +3,7 @@ import {
     MateriaRequestInterface,
 } from '@/interface/materia.interface';
 import { httpResource } from '@angular/common/http';
-import { Component, inject, signal, effect, computed } from '@angular/core';
+import { Component, inject, signal, effect, computed, input } from '@angular/core';
 import {
     FormBuilder,
     Validators,
@@ -20,6 +20,7 @@ import { MessageModule } from 'primeng/message';
 import { ButtonModule } from 'primeng/button';
 import { MateriaService } from '@/pages/service/materia.service';
 import { MessageService } from 'primeng/api';
+import { SemestreService } from '@/pages/service/semestre.service';
 
 @Component({
     selector: 'app-form-materia',
@@ -37,22 +38,23 @@ import { MessageService } from 'primeng/api';
     ],
     templateUrl: 'materia-form.html',
 })
-export class MateriaForm {
+export default class MateriaForm {
     //Providers
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private formBuilder = inject(FormBuilder);
     private messageService = inject(MessageService);
+    private semestreService = inject(SemestreService);
 
     //Services
     private materiaService = inject(MateriaService);
 
     //Variables
-    materiaId = signal(this.route.snapshot.paramMap.get('id'));
+    readonly id = input<string>('');
     formEnviado = signal(false);
 
     // --- Computed UI ---
-    esEdicion = computed(() => !!this.materiaId());
+    esEdicion = computed(() => !!this.id());
     headerText = computed(() =>
         this.esEdicion() ? 'Editar materia' : 'Agregar materia',
     );
@@ -61,16 +63,9 @@ export class MateriaForm {
     );
 
     // HttpResources
-    semestreResource = httpResource<SemestreInterface[]>(() => ({
-        url: `http://localhost:8080/api/semestres`,
-    }));
+    semestreResource = this.semestreService.getAllSemestres();
 
-    materiaResource = httpResource<MateriaInterface>(() => {
-        const id = this.materiaId();
-        return id
-            ? { url: `http://localhost:8080/api/materias/${id}` }
-            : undefined;
-    });
+    materiaResource = this.materiaService.getMateria(this.id);
 
     // Options for selects
     estadoMateriaOptions = [

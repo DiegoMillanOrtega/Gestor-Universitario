@@ -1,5 +1,5 @@
-import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { inject, Injectable, Signal } from '@angular/core';
+import { HttpClient, httpResource, HttpResourceRef } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SemestreInterface } from '@/interface/semestre.interface';
 
@@ -10,12 +10,15 @@ export class SemestreService {
     private http = inject(HttpClient);
     private baseUrl = 'http://localhost:8080/api/semestres';
     
-    getAllSemestres(): Observable<SemestreInterface[]> {
-        return this.http.get<SemestreInterface[]>(`${this.baseUrl}`);
+    getAllSemestres(): HttpResourceRef<SemestreInterface[] | undefined> {
+        return httpResource<SemestreInterface[]>(() => `${this.baseUrl}`);
     }
     
-    obtenerSemestrePorId(id: string) {
-        return this.http.get<SemestreInterface>(`${this.baseUrl}/${id}`);
+    obtenerSemestrePorId(id: Signal<string>): HttpResourceRef<SemestreInterface | undefined> {
+        return httpResource<SemestreInterface>(() => {
+            const idValue = id();
+            return idValue ? `${this.baseUrl}/${idValue}` : undefined;
+        });
     }
 
     guardaSemestre(semestre: SemestreInterface) {

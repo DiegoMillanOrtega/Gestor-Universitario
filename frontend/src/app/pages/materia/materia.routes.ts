@@ -1,9 +1,8 @@
 import { Routes } from "@angular/router";
-import { Materia } from "./materia";
-import { MateriaForm } from "./components/materia-form";
+
 
 export default [
-    { path: '', component: Materia },
-    { path: 'agregar', component:  MateriaForm },
-    { path: 'editar/:id', component:  MateriaForm },
+    { path: '', loadComponent: () => import('./materia') },
+    { path: 'agregar', loadComponent: () => import('./components/materia-form') },
+    { path: 'editar/:id', loadComponent: () => import('./components/materia-form') },
 ] as Routes;
