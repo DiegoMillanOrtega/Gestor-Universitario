@@ -56,7 +56,7 @@ public class ArchivoController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ArchivoResponse> actualizarArchivo(
             @PathVariable Long id,
             @Valid @ModelAttribute ArchivoRequest request,
