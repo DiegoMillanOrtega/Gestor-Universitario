@@ -5,6 +5,7 @@ import com.example.sigu.persistence.repository.IArchivoRepository;
 import com.example.sigu.presentation.dto.archivo.ArchivoGoogleDriveRequest;
 import com.example.sigu.util.mapper.ArchivoMapper;
 import com.google.api.client.http.InputStreamContent;
+import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ import java.util.Map;
 @Slf4j
 public class GoogleDriveService {
 
-    private final GoogleServiceProvider googleProvider;
+    private final Drive drive;
     private final ArchivoMapper archivoMapper;
     private final IArchivoRepository archivoRepository;
 
@@ -54,7 +55,7 @@ public class GoogleDriveService {
                 file.getInputStream()
         );
 
-        File uploadedFile = googleProvider.getDriveService().files().create(fileMetadata, mediaContent)
+        File uploadedFile = drive.files().create(fileMetadata, mediaContent)
                 .setFields("id, name, mimeType, size, webViewLink, createdTime")
                 .execute();
 
@@ -69,7 +70,7 @@ public class GoogleDriveService {
     public void eliminarArchivo(String googleDriveFileId) throws IOException {
         log.info("Eliminando archivo con ID: {}", googleDriveFileId);
 
-        googleProvider.getDriveService().files().delete(googleDriveFileId).execute();
+        drive.files().delete(googleDriveFileId).execute();
 
         archivoRepository.findByGoogleDriveFileId(googleDriveFileId)
                 .ifPresent(archivoRepository::delete);
@@ -87,7 +88,7 @@ public class GoogleDriveService {
                 newFile.getInputStream()
         );
 
-        File updatedFile = googleProvider.getDriveService().files().update(archivoEntidad.getGoogleDriveFileId(), fileMetadata, mediaContent)
+        File updatedFile = drive.files().update(archivoEntidad.getGoogleDriveFileId(), fileMetadata, mediaContent)
                 .setFields("id, mimeType, size, webViewLink")
                 .execute();
 
@@ -102,10 +103,10 @@ public class GoogleDriveService {
     public String moverArchivoDeCarpeta(String googleDriveFileId, String semestre, String materia) throws IOException {
         String materiaFolderId =  obtenerOCrearCarpeta(materia, obtenerOCrearCarpeta(semestre, siguFolderId));
 
-        File file = googleProvider.getDriveService().files().get(googleDriveFileId).setFields("parents").execute();
+        File file = drive.files().get(googleDriveFileId).setFields("parents").execute();
         String previousParents = String.join(",", file.getParents());
 
-        googleProvider.getDriveService().files().update(googleDriveFileId, null)
+        drive.files().update(googleDriveFileId, null)
                 .setAddParents(materiaFolderId)
                 .setRemoveParents(previousParents)
                 .execute();
@@ -131,7 +132,7 @@ public class GoogleDriveService {
             query += " and '" + parentId + "' in parents";
         }
 
-        FileList result = googleProvider.getDriveService().files().list()
+        FileList result = drive.files().list()
                 .setQ(query)
                 .setSpaces("drive")
                 .setFields("files(id, name)")
@@ -155,7 +156,7 @@ public class GoogleDriveService {
             fileMetadata.setParents(Collections.singletonList(parentId));
         }
 
-        File folder = googleProvider.getDriveService().files().create(fileMetadata)
+        File folder = drive.files().create(fileMetadata)
                 .setFields("id, name")
                 .execute();
 
