@@ -1,0 +1,32 @@
+@if (archivosResource.isLoading()) {
+    <app-loading></app-loading>
+} @else {
+  @if (archivosResource.error()) {
+    <div class="flex flex-col items-center justify-center py-20">
+      <i class="pi pi-exclamation-triangle text-2xl text-red-500"></i>
+      <p class="mt-4 text-muted-foreground">
+        Ocurrió un error al cargar los archivos.
+      </p>
+    </div>
+  } @else {
+    @let archivos = archivosResource.value() ?? [];
+
+    <app-archivo-table
+      [archivos]="archivos"
+      (onSee)="abrirEnlanceArchivo($event)"
+      (onEdit)="editarArchivo($event)"
+      (onDelete)="eliminarArchivo($event)"
+    />
+
+    <!-- <p-dialog
+      [modal]="true"
+      [(visible)]="showVisibleForm"
+      [style]="{ width: '25rem' }"
+    >
+      <app-archivo-form />
+    </p-dialog> -->
+  }
+}
+@if (loading()) {
+<app-loading-spinner-overlay [isLoading]="loading()"></app-loading-spinner-overlay>
+}
