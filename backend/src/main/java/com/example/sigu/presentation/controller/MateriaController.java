@@ -37,6 +37,20 @@ public class MateriaController {
         return ResponseEntity.ok(materias);
     }
 
+    @GetMapping("/semestre-activo")
+    public ResponseEntity<List<MateriaResponse>> getMateriasSemestreActivo() {
+        List<MateriaResponse> materias = materiaService.findAllBySemestreActivo()
+                .stream()
+                .map(materiaMapper::toResponse)
+                .toList();
+
+        if (materias.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(materias);
+    }
+
     @GetMapping("/semestre/{semestreId}")
     public ResponseEntity<List<MateriaResponse>> findAllBySemestreId(@PathVariable Long semestreId) {
         List<MateriaResponse> materias = materiaService.buscarTodoPorSemestreId(semestreId)

@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface IMateriaService {
     List<Materia> findAll();
+    List<Materia> findAllBySemestreActivo();
     List<Materia> buscarTodoPorSemestreId(Long semestreId);
     Materia findById(Long id);
     Materia save(MateriaRequest materia);

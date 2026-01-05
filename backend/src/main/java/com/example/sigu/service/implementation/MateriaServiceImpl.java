@@ -31,6 +31,11 @@ public class MateriaServiceImpl implements IMateriaService {
     }
 
     @Override
+    public List<Materia> findAllBySemestreActivo() {
+        return materiaRepository.findAllBySemestreActivo();
+    }
+
+    @Override
     public List<Materia> buscarTodoPorSemestreId(Long semestreId) {
         return materiaRepository.findAllBySemestreIdAndSemestre_UsuarioId(semestreId, securityUtils.getCurrentUserId());
     }
