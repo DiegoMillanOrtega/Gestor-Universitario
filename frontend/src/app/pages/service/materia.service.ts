@@ -16,6 +16,10 @@ export class MateriaService {
         return httpResource<MateriaInterface[]>(() => 'http://localhost:8080/api/materias');
     }
 
+    getAllMateriasBySemestreActivo(): HttpResourceRef<MateriaInterface[] | undefined> {
+        return httpResource<MateriaInterface[]>(() => 'http://localhost:8080/api/materias/semestre-activo');
+    }
+
     getMateria(id: Signal<string>): HttpResourceRef<MateriaInterface | undefined> {
         return httpResource<MateriaInterface>(() => {
             const idValue = id();
