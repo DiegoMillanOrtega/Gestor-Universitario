@@ -64,7 +64,6 @@ export default class MateriaForm {
 
     // HttpResources
     semestreResource = this.semestreService.getAllSemestres();
-
     materiaResource = this.materiaService.getMateria(this.id);
 
     // Options for selects
@@ -92,8 +91,14 @@ export default class MateriaForm {
     constructor() {
         effect(() => {
             const materia = this.materiaResource.value();
+            const semestres = this.semestreResource.value();
+            console.log('materia', materia);
+            console.log('semestres: ', semestres);
+            
+            
 
             if (materia) {
+                console.log('llgue');
                 this.formMateria.patchValue({
                     ...materia,
                     semestreId: materia.semestre.id,
@@ -101,14 +106,14 @@ export default class MateriaForm {
             }
         });
 
-        effect(() => {
-            const semestres = this.semestreResource.value();
-            if (semestres && !this.esEdicion()) {
-                const activo = semestres.find((s) => s.estado === 'ACTIVO');
-                if (activo)
-                    this.formMateria.controls.semestreId.setValue(activo.id);
-            }
-        });
+        // effect(() => {
+        //     const semestres = this.semestreResource.value();
+        //     if (semestres && !this.esEdicion()) {
+        //         const activo = semestres.find((s) => s.estado === 'ACTIVO');
+        //         if (activo)
+        //             this.formMateria.controls.semestreId.setValue(activo.id);
+        //     }
+        // });
     }
 
     controlInvalido(name: string): boolean {

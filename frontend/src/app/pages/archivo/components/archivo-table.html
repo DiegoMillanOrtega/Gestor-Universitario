@@ -1,0 +1,210 @@
+<div class="card">
+  <p-table
+    #table
+    [value]="archivosMap()"
+    [tableStyle]="{ 'min-width': '50rem' }"
+    showGridlines
+    dataKey="id"
+    [globalFilterFields]="['nombre', 'materia.nombre']"
+  >
+    <ng-template pTemplate="caption">
+      <div class="flex flex-col md:flex-row justify-between gap-2">
+        <div class="flex flex-col gap-2 md:flex-row">
+          <p-iconfield iconPosition="left">
+            <p-inputicon class="pi pi-search" />
+            <input
+              #filterInput
+              pInputText
+              type="text"
+              placeholder="Buscar..."
+              class="w-full"
+              (input)="table.filterGlobal(filterInput.value, 'contains')"
+              [(ngModel)]="searchInputText"
+            />
+          </p-iconfield>
+          <p-button
+            label="Limpiar"
+            [outlined]="true"
+            icon="pi pi-filter-slash"
+            severity="secondary"
+            (onClick)="clear(table)"
+          />
+        </div>
+
+        <div>
+          <!-- TODO: Implementar en un futuro -->
+          <!-- <p-button
+            label="Sincronizar con Drive"
+            icon="pi pi-cloud-upload"
+            severity="info"
+            class="mr-2"
+          /> -->
+
+          <p-button
+            severity="success"
+            icon="pi pi-plus"
+            label="Agregar archivo"
+            routerLink="/pages/archivos/agregar"
+          />
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template #header>
+      <tr>
+        <th class="!text-center">
+          <div class="flex items-center justify-between">
+            Tipo
+            <p-columnFilter
+              field="mimeType"
+              matchMode="equals"
+              display="menu"
+              [showMatchModes]="false"
+              [showOperator]="false"
+              [showAddButton]="false"
+            >
+              <ng-template
+                #filter
+                let-value
+                let-filter="filterCallback"
+              >
+                <p-select
+                  [ngModel]="value"
+                  [options]="optionsMimeType()"
+                  (onChange)="filter($event.value)"
+                  placeholder="Elije un tipo"
+                  class="w-full"
+                >
+                  <ng-template
+                    let-selectedOption
+                    #selectedItem
+                  >
+                    <i
+                      [class]="selectedOption | fileIcon"
+                      [style]="{
+                        color: getFileColor(selectedOption),
+                        'font-size': '1.5rem',
+                      }"
+                    ></i>
+                  </ng-template>
+                  <ng-template
+                    let-option
+                    #item
+                  >
+                    <i
+                      [class]="option | fileIcon"
+                      [style]="{
+                        color: getFileColor(option),
+                        'font-size': '1.5rem',
+                      }"
+                    ></i>
+                  </ng-template>
+                </p-select>
+              </ng-template>
+            </p-columnFilter>
+          </div>
+        </th>
+        <th>Nombre</th>
+        <th>
+          Fecha de modificación
+          <p-columnFilter
+            type="date"
+            field="fechaModificacionFormateada"
+            display="menu"
+          >
+            <ng-template
+              #filter
+              let-value
+              let-filter="filterCallback"
+            >
+              <p-datepicker
+                [ngModel]="value"
+                [dateFormat]="'yy-mm-dd'"
+                (onSelect)="filter($event)"
+                placeholder="Seleccione fecha"
+                readonlyInput="true"
+              ></p-datepicker>
+            </ng-template>
+          </p-columnFilter>
+        </th>
+        <th>Tamaño</th>
+
+        <th>
+          Materia
+          <p-columnFilter
+            type="select"
+            field="materia.id"
+            display="menu"
+            [showMatchModes]="false"
+            [showOperator]="false"
+            [showAddButton]="false"
+          >
+            <ng-template
+              #filter
+              let-value
+              let-filter="filterCallback"
+            >
+              <p-select
+                [ngModel]="value"
+                optionLabel="nombre"
+                optionValue="id"
+                [options]="optionsMaterias.value()"
+                (onChange)="filter($event.value)"
+                placeholder="Seleccione una materia"
+                class="w-full"
+              />
+            </ng-template>
+          </p-columnFilter>
+        </th>
+
+        <th>Acciones</th>
+      </tr>
+    </ng-template>
+
+    <ng-template
+      #body
+      let-archivo
+    >
+      <tr>
+        <td class="!text-center">
+          <i
+            [class]="archivo.mimeType | fileIcon"
+            [style]="{
+              color: getFileColor(archivo.mimeType),
+              'font-size': '1.5rem',
+            }"
+          ></i>
+        </td>
+        <td>
+          <span class="uppercase font-medium">{{ archivo.nombre }}</span>
+        </td>
+        <td>{{ archivo.fechaModificacion }}</td>
+        <td>{{ archivo.tamano | fileSize }}</td>
+        <td>{{ archivo.materia.nombre }}</td>
+        <td>
+          <p-menu
+            #menu
+            [model]="items"
+            [popup]="true"
+            appendTo="body"
+          />
+          <p-button
+            (click)="
+              archivoId = archivo.id;
+              archivoWebViewLink = archivo.googleDriveWebViewLink;
+              menu.toggle($event)
+            "
+            icon="pi pi-ellipsis-v"
+            severity="secondary"
+          />
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+        <tr>
+            <td colspan="6">Archivos no encontrados.</td>
+        </tr>
+    </ng-template>
+  </p-table>
+</div>

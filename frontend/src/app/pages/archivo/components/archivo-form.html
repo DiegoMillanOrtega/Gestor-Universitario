@@ -1,0 +1,108 @@
+<form
+  [formGroup]="formArchivo"
+  (ngSubmit)="onSubmit()"
+  class="card"
+>
+  @if (archivoMetadata.isLoading()) {
+    <app-loading></app-loading>
+  } @else {
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="col-span-2">
+        <div class="flex flex-col gap-2">
+          <label
+            class="font-semibold text-muted-foreground"
+            for="nombre"
+          >
+            Nombre del archivo
+          </label>
+          <input
+            pInputText
+            id="nombre"
+            formControlName="nombre"
+            placeholder="Ej. Apuntes de clase 1 - Introducción"
+          />
+        </div>
+      </div>
+
+      <div class="col-span-2">
+        <div class="flex flex-col gap-2">
+          <label
+            class="font-semibold text-muted-foreground"
+            for="descripcion"
+          >
+            Descripción
+          </label>
+          <textarea
+            rows="5"
+            cols="30"
+            pTextarea
+            formControlName="descripcion"
+            placeholder="Breve descripción del contenido..."
+            fluid
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-2 col-span-2 md:col-span-1">
+        <label
+          class="font-semibold text-muted-foreground"
+          for="materiaId"
+        >
+          Materia *
+        </label>
+        <p-select
+          id="materiaId"
+          formControlName="materiaId"
+          [options]="materias.value() ?? []"
+          optionLabel="nombre"
+          optionValue="id"
+          placeholder="Seleccione la materia"
+          [loading]="materias.isLoading()"
+        />
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label
+          class="font-semibold text-muted-foreground"
+          for="archivo"
+        >
+          Archivo *
+        </label>
+        <p-fileupload
+          #fu
+          mode="basic"
+          chooseLabel="Cargar archivo"
+          chooseIcon="pi pi-upload"
+          name="demo[]"
+          url="https://www.primefaces.org/cdn/api/upload.php"
+          accept=".pdf, .doc, .docx, .xls, .xlsx, .ppt, .pptx, image/*"
+          maxFileSize="73400320"
+          (onSelect)="onFileChange($event)"
+        />
+        <!-- 70MB -->
+      </div>
+    </div>
+    <div class="flex flex-col-reverse sm:flex-row gap-3 mt-5">
+      <p-button
+        styleClass="w-full sm:w-auto bg-transparent"
+        type="button"
+        label="Cancelar"
+        icon="pi pi-times"
+        severity="secondary"
+        outlined="true"
+        routerLink="/pages/archivos"
+      />
+      <p-button
+        type="submit"
+        label="Subir archivo"
+        icon="pi pi-upload"
+        severity="success"
+        styleClass="w-full sm:flex-1"
+        [loading]="loading()"
+        [disabled]="loading()"
+      />
+    </div>
+  }
+</form>
+
+<app-loading-spinner-overlay [isLoading]="loading()"></app-loading-spinner-overlay>

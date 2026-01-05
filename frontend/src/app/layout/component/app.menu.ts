@@ -85,7 +85,14 @@ export class AppMenu {
                     },
                     {
                         label: 'Archivos',
-                        icon: 'pi pi-fw pi-file'
+                        icon: 'pi pi-fw pi-file',
+                        routerLink: ['/pages/archivos'],
+                        routerLinkActiveOptions: {
+                            paths: 'subset', // Indica que si es una sub-ruta, siga activo
+                            queryParams: 'ignored',
+                            matrixParams: 'ignored',
+                            fragment: 'ignored'
+                        }
                     }
                     // {
                     //     label: 'Landing',
